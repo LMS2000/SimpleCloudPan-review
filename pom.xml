@@ -1,0 +1,114 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>SimpleCloudPan</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>SimpleCloudPan</name>
+    <url>http://maven.apache.org</url>
+    <modules>
+        <module>CloudPan</module>
+        <module>common-infrastructure</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <mapstruct.version>1.4.1.Final</mapstruct.version>
+        <knife4j.version>3.0.2</knife4j.version>
+        <mybaits.plus.version>3.5.2</mybaits.plus.version>
+        <mysql.version>8.0.11</mysql.version>
+        <druid.version>1.2.12</druid.version>
+        <lombok.version>1.18.24</lombok.version>
+        <hutool.version>5.8.12</hutool.version>
+        <fastjson.version>1.2.79</fastjson.version>
+    </properties>
+
+    <parent>
+        <artifactId>spring-boot-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <version>2.3.9.RELEASE</version>
+    </parent>
+    <dependencyManagement>
+        <dependencies>
+
+
+            <!--            <dependency>-->
+            <!--                <groupId>easyCode.dhy</groupId>-->
+            <!--                <artifactId>Easy-generator</artifactId>-->
+            <!--                <version>${easy-generator.version}</version>-->
+            <!--            </dependency>-->
+
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybaits.plus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
+            <!--druid连接池-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- 阿里JSON解析器 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>org.example</groupId>-->
+            <!--                <artifactId>qhy-common-infrastructure</artifactId>-->
+            <!--                <version>1.0-SNAPSHOT</version>-->
+            <!--            </dependency>-->
+
+            <!--            <dependency>-->
+            <!--                <groupId>org.example</groupId>-->
+            <!--                <artifactId>common-security-plugin-starter</artifactId>-->
+            <!--                <version>1.0-SNAPSHOT</version>-->
+            <!--            </dependency>-->
+            <!--seata starter 采用1.5.0版本-->
+            <!--            <dependency>-->
+            <!--                <groupId>io.seata</groupId>-->
+            <!--                <artifactId>seata-spring-boot-starter</artifactId>-->
+            <!--                <version>1.4.2</version>-->
+            <!--            </dependency>-->
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,3 @@
+# Project exclude paths
+/CloudPan/target/
+/common-infrastructure/target/

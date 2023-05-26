@@ -1,0 +1,52 @@
+server:
+  port: 9998
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+    context-path: /pan
+#自设计的工具库starter,enableGlobalResponse开启全局响应，enablePage开启分页配置
+lms:
+  global:
+    enableGlobalResponse: true
+    enablePage: true
+    enableRedis: true
+
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cloudpan?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+  redis:
+    host: 123.249.23.88
+    port: 6379
+    password: c219034
+#开启swagger配置
+swagger:
+  open: true
+  scanPackage: com.lms.cloudpan
+  title: cloudpan-server
+  version: 1.0.0
+  description: 简易网盘
+
+# 文件存储的路径
+oss:
+  #root-path: C:\Users\zdh\Desktop\test
+  root-path: E:\demo\pan_file_home
+  #endpoint: http://119.91.143.140:20001
+  endpoint: http://localhost:9998/pan
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+jwt:
+  open: true
+  secret: lms2000
+  expiration: 30
+  tokenOfRequestHeaderName: token
+  refreshTokenOfResponseHeaderName: auth-token
