@@ -105,33 +105,7 @@ export default {
   methods: {
     //   点击登录的回调
     async onSubmit() {
-			
-   //    let res = await this.$request(
-   //      "/user/login",
-   //      this.loginInfo,
-   //      "post",
-   //      "params"
-   //    );
-   //    console.log(res);
-      // if (res.status == 200 && res.data.success) {
-      //   // 登陆成功
-      //   // 将用户信息保存至vuex
-      //   this.$store.commit("updateUserInfo", res.data.data.mem);
 
-      //   // 将返回的用户信息保存至localstorage中
-      //   window.localStorage.setItem(
-      //     "userInfo",
-      //     JSON.stringify(res.data.data.mem)
-      //   );
-
-      //   // // 将token存入本地
-      //   // window.localStorage.setItem("token", res.data.data.token);
-
-      //   //   跳转至主界面
-      //   this.$router.push("/index");
-      // } else if (res.status == 200 && !res.data.success) {
-      //   this.$message.warning("登录失败,账号或密码错误!");
-      // }
 			axios.post('http://localhost:9998/pan/login?username='+this.loginInfo.username+"&password="
 			+this.loginInfo.password, {
 			}).then(res => {
@@ -139,14 +113,7 @@ export default {
 				 var token= res.data.msg;
 				 	console.log(res)
 				 	if(res.data.code==200){
-				 		//将用户信息保存到vuex
-				 		  // this.$store.commit("updateUserInfo", loginUser);
-				 			 //  // 将返回的用户信息保存至localstorage中
-				 			 //  window.localStorage.setItem(
-				 			 //    "userInfo",
-				 			 //    JSON.stringify(loginUser)
-				 			 //  );
-				 			 //设置token
+
 				 		
 				 			   localStorage.setItem('token', token)
 				 			  this.$router.push("/index");
@@ -155,28 +122,7 @@ export default {
 				 	}
 				 
 			 })
-			// login(this.loginInfo).then(res=>{
-			// 	var token= res.msg;
-			// 	console.log(res)
-			// 	if(res.code==20000){
-			// 		//将用户信息保存到vuex
-			// 		  // this.$store.commit("updateUserInfo", loginUser);
-			// 			 //  // 将返回的用户信息保存至localstorage中
-			// 			 //  window.localStorage.setItem(
-			// 			 //    "userInfo",
-			// 			 //    JSON.stringify(loginUser)
-			// 			 //  );
-			// 			 //设置token
-						
-			// 			   localStorage.setItem('token', token)
-			// 			  this.$router.push("/index");
-			// 	}else{
-			// 		 this.$message.warning("登录失败,账号或密码错误!");
-			// 	}
-			// }).catch(error=>{
-			// 	 this.$message.warning("登录失败,账号或密码错误!");
-			// 	console.log(error)
-			// })
+
 			
     },
 
