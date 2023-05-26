@@ -75,16 +75,18 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `username` varchar(50) DEFAULT NULL COMMENT '用户名',
-  `password` varchar(50) DEFAULT NULL COMMENT '密码',
+  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '瀵嗙爜',
   `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
   `enable` tinyint(1) DEFAULT '0' COMMENT '是否可用',
   `use_quota` bigint(11) DEFAULT NULL COMMENT '使用情况',
   `quota` bigint(11) DEFAULT NULL COMMENT '总容量',
-  `avatar` varchar(50) DEFAULT NULL COMMENT '头像',
+  `avatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '#' COMMENT '婢舵潙鍎?',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COMMENT='用户表';
+
+
 
 -- ----------------------------
 -- Table structure for role
@@ -92,13 +94,15 @@ CREATE TABLE `user` (
 DROP TABLE IF EXISTS `role`;
 CREATE TABLE `role` (
   `rid` int(11) NOT NULL AUTO_INCREMENT COMMENT 'rid',
-  `enabled` tinyint(4) NOT NULL DEFAULT '1' COMMENT '启用',
+  `enabled` tinyint(4) NOT NULL DEFAULT '0' COMMENT '鍚敤',
   `role_name` varchar(50) NOT NULL COMMENT '角色名',
   `description` varchar(50) NOT NULL COMMENT '角色描述',
-   `create_time` datetime NOT NULL  COMMENT '创建时间',
-  `update_time` datetime NOT NULL  COMMENT '更新时间',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`rid`) USING BTREE
-) ENGINE=InnoDB COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='角色表';
+
+
 
 
 -- ----------------------------
@@ -111,7 +115,9 @@ CREATE TABLE `user_role` (
   `rid` int(11) NOT NULL COMMENT '角色id',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `uid` (`uid`) USING BTREE
-) ENGINE=InnoDB COMMENT='用户角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='用户角色表';
+
+
 
 -- ----------------------------
 -- Table structure for authority
@@ -120,13 +126,15 @@ DROP TABLE IF EXISTS `authority`;
 CREATE TABLE `authority` (
   `aid` int(11) NOT NULL AUTO_INCREMENT COMMENT 'aid',
   `enabled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0启用,1禁用',
-   `is_deleted` tinyint(1)  DEFAULT '0' COMMENT '0未删除，1删除',
-  `name` varchar(50)  NOT NULL COMMENT '资源名',
-  `description` varchar(50)  NOT NULL COMMENT '资源描述',
-  `create_time` datetime NOT NULL  COMMENT '创建时间',
-  `update_time` datetime NOT NULL  COMMENT '更新时间',
+  `is_deleted` tinyint(1) DEFAULT '0' COMMENT '0未删除，1删除',
+  `name` varchar(50) NOT NULL COMMENT '资源名',
+  `description` varchar(50) NOT NULL COMMENT '资源描述',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`aid`) USING BTREE
-) ENGINE=InnoDB  COMMENT='权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8 COMMENT='权限表';
+
+
 
 -- ----------------------------
 -- Table structure for role_authority
@@ -138,7 +146,7 @@ CREATE TABLE `role_authority` (
   `aid` int(11) NOT NULL COMMENT '权限id',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `rid` (`rid`) USING BTREE
-) ENGINE=InnoDB  COMMENT='角色权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='角色权限表';
 
 
 
@@ -147,25 +155,28 @@ CREATE TABLE `role_authority` (
 -- ----------------------------
 
 DROP TABLE IF EXISTS `operation_log`;
-CREATE TABLE `operation_log`  (
+CREATE TABLE `operation_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `operation_name` varchar(255)  NOT NULL COMMENT '操作者姓名',
-  `operation_content` varchar(255)  NOT NULL COMMENT '操作内容',
-  `create_time` datetime(0) NOT NULL  COMMENT '创建时间',
-  `update_time` datetime(0) NOT NULL  COMMENT '更新时间',
+  `operation_name` varchar(255) NOT NULL COMMENT '操作者姓名',
+  `operation_content` varchar(255) NOT NULL COMMENT '操作内容',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB  COMMENT = '操作日志记录表' ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='操作日志记录表';
+
+
 
 DROP TABLE IF EXISTS `upload_log`;
-CREATE TABLE `upload_log`  (
+CREATE TABLE `upload_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `bucket_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '桶名',
   `file_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '文件名',
   `file_md5` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '文件md5值',
-  `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '上传日志表' ROW_FORMAT = Compact;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='上传日志表';
+
 
 
 DROP TABLE IF EXISTS `file`;
@@ -177,40 +188,46 @@ CREATE TABLE `file` (
   `user_id` int(11) DEFAULT NULL COMMENT '所属用户id',
   `folder_id` int(11) DEFAULT NULL COMMENT '所属文件夹id',
   `file_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `share_link` VARCHAR(255) DEFAULT NULL COMMENT '分享链接',
+  `delete_flag` tinyint(1) DEFAULT '0',
+  `share_link` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '#' COMMENT '鍒嗕韩閾炬帴',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`file_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8 COMMENT='文件表';
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8 COMMENT='文件表';
+
+
 
 DROP TABLE IF EXISTS `folder`;
 CREATE TABLE `folder` (
   `folder_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `folder_name` varchar(50) NOT NULL COMMENT '文件夹名称',
-  `parent_folder` int(11) DEFAULT NULL,
+  `parent_folder` int(11) DEFAULT '0',
   `size` bigint(20) DEFAULT '0',
   `user_id` int(11) NOT NULL COMMENT '所属用户',
-  `share_link` VARCHAR(255) DEFAULT NULL COMMENT '分享链接',
+  `share_link` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '#' COMMENT '鍒嗕韩閾炬帴',
+  `delete_flag` tinyint(1) DEFAULT '0',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`folder_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COMMENT='文件夹表';
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COMMENT='文件夹表';
+
 
 
 
 DROP TABLE IF EXISTS `shares`;
 CREATE TABLE `shares` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT  COMMENT 'id',
-    `shared_id` INT(11) NOT NULL COMMENT '被分享文件或者文件夹的id',
-    `share_type` tinyint(1) NOT NULL  COMMENT '被分享文件或者文件夹的类型 0为文件 1为文件夹',
-    `share_key` VARCHAR(50) NOT NULL COMMENT '分享唯一标识' ,
-    `share_user` int(11) NOT NULL COMMENT '分享的用户' ,
-    `share_time` TIMESTAMP  DEFAULT CURRENT_TIMESTAMP COMMENT '分享时间',
-    `expiration_date` DATETIME NOT NULL COMMENT '过期时间',
-    `download_count`INT  DEFAULT 0 COMMENT '资源被下载次数',
-    PRIMARY KEY (`id`),
-    UNIQUE (`share_key`)
-);
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `shared_id` int(11) NOT NULL COMMENT '被分享文件或者文件夹的id',
+  `share_type` tinyint(1) NOT NULL COMMENT '被分享文件或者文件夹的类型 0为文件 1为文件夹',
+  `share_key` varchar(50) NOT NULL COMMENT '分享唯一标识',
+  `share_user` int(11) NOT NULL COMMENT '分享的用户',
+  `share_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '分享时间',
+  `expiration_date` datetime NOT NULL COMMENT '过期时间',
+  `download_count` int(11) DEFAULT '0' COMMENT '资源被下载次数',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `share_key` (`share_key`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
 
 ```
 
