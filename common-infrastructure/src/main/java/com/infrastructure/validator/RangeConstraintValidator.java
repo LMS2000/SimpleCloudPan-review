@@ -3,7 +3,7 @@ package com.infrastructure.validator;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
-
+//范围校验器
 public class RangeConstraintValidator implements ConstraintValidator<RangeCheck,Integer> {
     private RangeCheck rangeCheck;
     @Override

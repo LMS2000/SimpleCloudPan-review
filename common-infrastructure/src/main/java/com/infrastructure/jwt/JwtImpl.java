@@ -92,12 +92,15 @@ public class JwtImpl implements Jwt {
      * @return 令牌
      */
     public String createToken(LoginUser loginUser) {
+        //生成唯一标识
         String token = UUID.randomUUID().toString();
         loginUser.setToken(token);
 //        setUserAgent(loginUser);
+        //刷新token
         refreshToken(loginUser);
         Map<String, Object> claims = new HashMap<>();
         claims.put(LoginConstants.LOGIN_USER_KEY, token);
+        //生成jwt令牌
         return createToken(claims);
     }
 
@@ -115,6 +118,11 @@ public class JwtImpl implements Jwt {
         }
     }
 
+    /**
+     * 校验token
+     * @param token
+     * @return
+     */
     public boolean  verifyToken(String token){
         Claims claims = parseToken(token);
         String uuid = (String)claims.get(LoginConstants.LOGIN_TOKEN_KEY);
@@ -140,21 +148,7 @@ public class JwtImpl implements Jwt {
         String userKey = getTokenKey(loginUser.getToken());
         redisCache.setCacheObject(userKey, loginUser, expiration, TimeUnit.MINUTES);
     }
-//
-//    /**
-//     * 设置用户代理信息
-//     *
-//     * @param loginUser 登录信息
-//     */
-//    public void setUserAgent(LoginUser loginUser)
-//    {
-//        UserAgent userAgent = UserAgent.parseUserAgentString(ServletUtils.getRequest().getHeader("User-Agent"));
-//        String ip = IpUtils.getIpAddr(ServletUtils.getRequest());
-//        loginUser.setIpaddr(ip);
-//        loginUser.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
-//        loginUser.setBrowser(userAgent.getBrowser().getName());
-//        loginUser.setOs(userAgent.getOperatingSystem().getName());
-//    }
+
 
     /**
      * 从数据声明生成令牌
