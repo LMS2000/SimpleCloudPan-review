@@ -56,6 +56,7 @@ import static com.lms.cloudpan.entity.factory.ShareFactory.SHARE_CONVERTER;
 public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implements IShareService {
 
 
+    //一天的时间戳
     private static final Long EXPIRA_TIME = 24 * 60 * 60 * 1000L;
 
 
