@@ -2,7 +2,13 @@ package com.lms.cloudpan.constants;
 
 public interface QuotaConstants {
 
-    //byte 单位
+    /**
+     * 空配额
+     */
     Long EMTRY_QUOTA=0L;
+
+    /**
+     * 用户最大配额
+     */
     Long USER_QUOTA=10L*1024L*1024L;
 }

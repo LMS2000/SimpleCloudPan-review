@@ -11,7 +11,9 @@ public interface FileConstants {
      */
     String STATIC_REQUEST_PREFIX_PATTERN="/static/**";
     String STATIC_REQUEST_PREFIX="static";
-
+    /**
+     * 异步任务缓存头
+     */
     String FILE_UPLOAD_TASK="file_upload_task:";
 
     //文件上传失败
