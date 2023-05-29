@@ -27,14 +27,14 @@ export function renameFile(id,name) {
     method: 'post'
   })
 }
-export function uploadFile(path,file) {
-	const formData = new FormData();
-	  formData.append('file', file);
+export function uploadFile(path,file,md5String) {
+  const formData = new FormData();
+  formData.append('file', file);
 
   return request({
-    url: `${api_name}/upload?path=`+path,
+    url: `${api_name}/upload?path=${path}&fingerPrint=${md5String}`,
     method: 'post',
-		data:formData
+    data:formData
   })
 }
 
