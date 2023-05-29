@@ -120,7 +120,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
      * @return
      */
     @Override
-    public String insertFile(FileVo fileVo, Integer uid) {
+    public String insertFile(FileVo fileVo, Integer uid,String fingerPrint) {
         User user = userMapper.selectById(uid);
         //先校验文件的路径是否存在
         Folder folder = validPath(fileVo.getFolderPath(), uid);
@@ -143,7 +143,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
         //开启异步任务
         CompletableFuture.runAsync(()-> {
                     try {
-                        SpringUtil.getBean(FileServiceImpl.class).uoloadFileAsync(file.getInputStream(),file,user,folder,taskId);
+                        SpringUtil.getBean(FileServiceImpl.class).uoloadFileAsync(file.getInputStream(),file,user,folder,taskId,fingerPrint);
                     }catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -161,10 +161,29 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
      * @param taskId 任务id
      */
     @Transactional
-    public  void uoloadFileAsync(InputStream inputStream , MultipartFile file, User user, Folder folder, String taskId){
+    public  void uoloadFileAsync(InputStream inputStream , MultipartFile file, User user, Folder folder, String taskId,String fingerPrint){
         Integer uid = user.getUserId();
         String bucketName = "bucket_user_" + uid;
         String fileName = file.getOriginalFilename() == null ? file.getName() : file.getOriginalFilename();
+
+       //校验redis上是否有这个MD5，是否系统已经存储了相同的文件（秒传功能）
+        String md5FileUrl = FileSafeUploadUtil.checkMd5String(fingerPrint);
+
+        //如果文件储存在系统上，就直接提交
+        if(md5FileUrl!=null){
+            log.info("命中MD5文件缓存");
+            //获取文件后缀
+            String fileSuffix = cn.hutool.core.io.FileUtil.getSuffix(file.getOriginalFilename());
+            //保存文件信息
+            this.save(File.builder().fileName(fileName).fileUrl(md5FileUrl).size(file.getSize())
+                    .fileType(fileSuffix).folderId(folder.getFolderId()).userId(uid).build());
+            //设置异步任务执行成功
+            FileVo.changeUploadState(redisCache,taskId,FileConstants.FILE_UPLOAD_SUCCESS);
+            return;
+
+        }
+
+
         //这里的fileName其实是实际的存储路径
         String filePath;
         UploadLog uploadLog=null;
@@ -191,9 +210,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
             saveFile.setUserId(uid);
 
             //获取文件类型
-            String type = null;
-            String fileString = FileUtil.pathMerge(ossProperties.getRootPath(), bucketName, filePath);
-            type = FileTypeUtil.getType(cn.hutool.core.io.FileUtil.file(fileString));
+            String type =cn.hutool.core.io.FileUtil.getSuffix(file.getOriginalFilename());
+
             saveFile.setFileType(type);
             //记录文件信息
              this.save(saveFile);
@@ -205,7 +223,12 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
             //修改文件夹容量
             folderMapper.updateById(Folder.builder()
                     .folderId(folder.getFolderId()).size(folder.getSize() + file.getSize()).build());
+            //设置异步任务执行成功
             FileVo.changeUploadState(redisCache,taskId,FileConstants.FILE_UPLOAD_SUCCESS);
+
+            //设置md5缓存
+            FileSafeUploadUtil.setMd5String(fingerPrint,fileUrl);
+
         } catch (Exception e) {
             log.error("文件上传失败，{}",e);
             //文件回滚

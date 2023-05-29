@@ -14,7 +14,7 @@ public interface IFileService extends IService<File> {
     //根据用户的id和获取指定路径下用户的所属文件
     List<FileDto> getUserFileByPath(String path, Integer uid);
 
-    String insertFile(FileVo fileVo, Integer uid);
+    String insertFile(FileVo fileVo, Integer uid,String fingerPrint);
 
     boolean renameFile(Integer id, String newName, Integer uid);
 

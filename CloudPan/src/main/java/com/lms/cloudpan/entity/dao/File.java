@@ -33,6 +33,8 @@ public class File {
 
     private String fileType;
 
+    private String fingerPrint;
+
     private Integer folderId;
     private String shareLink;
 

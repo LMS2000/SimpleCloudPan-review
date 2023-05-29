@@ -40,6 +40,9 @@ public class FileController {
     @Resource
     private IFileService fileService;
 
+
+
+
     /**
      * 上传文件到指定的路径下
      *
@@ -49,12 +52,13 @@ public class FileController {
      */
     @PostMapping(value = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("上传文件")
-    public String insertFile(@RequestBody @NotNull MultipartFile file, @NotNull @ApiParam("指定上传路径")  @RequestParam("path")  String path) {
+    public String insertFile(@RequestBody @NotNull MultipartFile file, @NotNull @ApiParam("指定上传路径")  @RequestParam("path")  String path,
+                        @NotNull   @RequestParam("fingerPrint")  String fingerPrint) {
         Integer userId = SecurityUtils.getLoginUser().getUser().getUserId();
         FileVo fileVo = new FileVo();
         fileVo.setFile(file);
         fileVo.setFolderPath(path);
-        return fileService.insertFile(fileVo, userId);
+        return fileService.insertFile(fileVo, userId,fingerPrint);
     }
 
     /**

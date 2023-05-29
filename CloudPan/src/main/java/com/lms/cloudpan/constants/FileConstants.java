@@ -22,6 +22,8 @@ public interface FileConstants {
     Integer FILE_UPLOAD_SUCCESS=2;
     //文件上传中
     Integer FILE_UPLOAD_RUNNING=0;
+    //文件fingerprint指纹，目前是指前端传入的文件md5字符串
+    String FINGER_PRINT="finger_print:";
 
 
 }
