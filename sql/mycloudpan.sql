@@ -116,6 +116,7 @@ CREATE TABLE `file` (
   `user_id` int(11) DEFAULT NULL COMMENT '所属用户id',
   `folder_id` int(11) DEFAULT NULL COMMENT '所属文件夹id',
   `file_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+   `finger_print` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '文件MD5',
   `delete_flag` tinyint(1) DEFAULT '0',
   `share_link` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '#' COMMENT '鍒嗕韩閾炬帴',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
