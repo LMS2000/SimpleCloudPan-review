@@ -5,12 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.lms.cloudpan.entity.dao.RoleAuthority;
-import com.lms.cloudpan.entity.dto.AuthorityDto;
+import com.lms.cloudpan.entity.vo.AuthorityVo;
+import com.lms.cloudpan.entity.vo.GetRoleAuthorityVo;
 import com.lms.cloudpan.mapper.RoleAuthorityMapper;
 import com.lms.cloudpan.service.IAuthorityService;
 import com.lms.cloudpan.service.IRoleAuthorityService;
+import com.lms.cloudpan.service.IRoleService;
 import com.lms.cloudpan.utis.MybatisUtils;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,10 @@ public class RoleAuthorityServiceImpl extends ServiceImpl<RoleAuthorityMapper, R
 
     @Resource
     private IAuthorityService authorityService;
+
+
+    @Resource
+    private IRoleService roleService;
 
     @Override
     public Boolean removeByRoleId(Integer id) {
@@ -85,10 +90,20 @@ public class RoleAuthorityServiceImpl extends ServiceImpl<RoleAuthorityMapper, R
      * @return
      */
     @Override
-    public List<AuthorityDto> getAuthorityOfRole(Integer roleId) {
+    public List<AuthorityVo> getAuthorityOfRole(Integer roleId) {
         List<Integer> aidList =
                 listByMap(Map.of("rid", roleId)).stream().map(RoleAuthority::getAid).collect(Collectors.toList());
-        return ObjectUtils.isEmpty(aidList)?null:AUTHORITY_CONVERTER.toListAuthorityDto(authorityService.listByIds(aidList));
+        return ObjectUtils.isEmpty(aidList)?null:AUTHORITY_CONVERTER.toListAuthorityVo(authorityService.listByIds(aidList));
 
+    }
+
+    @Override
+    public GetRoleAuthorityVo getAuthorityOfRoleTree(Integer rid) {
+        //角色的权限ids
+        List<Integer> aids = this.list(new QueryWrapper<RoleAuthority>().eq("rid", rid)).stream().map(RoleAuthority::getAid).collect(Collectors.toList());
+
+        List<AuthorityVo> authorityTree = authorityService.getAuthorityTree();
+
+        return GetRoleAuthorityVo.builder().authorityVos(authorityTree).checks(aids).build();
     }
 }

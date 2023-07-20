@@ -4,6 +4,7 @@ package com.lms.cloudpan.entity.factory;
 
 import com.lms.cloudpan.entity.dao.OperationLog;
 import com.lms.cloudpan.entity.dto.OperationLogDto;
+
 import com.lms.cloudpan.entity.vo.OperationLogVo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,8 +20,8 @@ public class OperationLogFactory {
         @Mapping(target = "id",ignore = true),
     }
         )
-        OperationLog toOperationLog(OperationLogVo operationlogVo);
-        OperationLogDto toOperationLogDto(OperationLog operationlog);
-        List<OperationLogDto> toListOperationLogDto(List<OperationLog> operationlog);
+        OperationLog toOperationLog(OperationLogDto operationLogDto);
+        OperationLogVo toOperationLogVo(OperationLog operationlog);
+        List<OperationLogVo> toListOperationLogVo(List<OperationLog> operationlog);
     }
 }

@@ -2,7 +2,7 @@ package com.lms.cloudpan.controller;
 
 
 
-import com.lms.cloudpan.entity.dto.OperationLogDto;
+import com.lms.cloudpan.entity.vo.OperationLogVo;
 import com.lms.cloudpan.service.IOperationLogService;
 import com.lms.page.CustomPage;
 import com.lms.result.EnableResponseAdvice;
@@ -27,14 +27,14 @@ public class OperationLogController {
     @ApiOperation("根据id查询操作日志")
     @GetMapping("/{id}")
     @PreAuthorize("@ss.hasPermi('pan:operationLog:get')")
-    public OperationLogDto getOperationLog(@PathVariable("id") Integer id) {
+    public OperationLogVo getOperationLog(@PathVariable("id") Integer id) {
         return iOperationLogService.getOperationLogById(id);
     }
 
     @ApiOperation("分页批量查询操作日志")
     @GetMapping("/list")
     @PreAuthorize("@ss.hasPermi('pan:operationLog:list')")
-    public List<OperationLogDto> listOperationLog(CustomPage customPage) {
+    public List<OperationLogVo> listOperationLog(CustomPage customPage) {
         return iOperationLogService.listOperationLog(customPage);
     }
 

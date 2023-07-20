@@ -1,10 +1,7 @@
 package com.lms.cloudpan.entity.factory;
 
-import com.lms.cloudpan.entity.dao.Authority;
 import com.lms.cloudpan.entity.dao.Folder;
-import com.lms.cloudpan.entity.dto.AuthorityDto;
 import com.lms.cloudpan.entity.dto.FolderDto;
-import com.lms.cloudpan.entity.vo.AuthorityVo;
 import com.lms.cloudpan.entity.vo.FolderVo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,10 +19,10 @@ public class FolderFactory {
         @Mappings({
                 @Mapping(target = "folderId", ignore = true),
         })
-        Folder toFolder(FolderVo FolderVo);
+        Folder toFolder(FolderDto folderDto);
 
-        FolderDto toFolderDto(Folder folder);
+        FolderVo toFolderVo(Folder folder);
 
-        List<FolderDto> toListFolderDto(List<Folder> folderList);
+        List<FolderVo> toListFolderVo(List<Folder> folderList);
     }
 }

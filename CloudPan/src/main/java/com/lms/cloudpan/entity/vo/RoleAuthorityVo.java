@@ -1,6 +1,5 @@
 package com.lms.cloudpan.entity.vo;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,11 +18,9 @@ public class RoleAuthorityVo implements Serializable {
     /**
      * 角色id
      */
-    @ApiModelProperty("角色id")
     private Integer rid;
     /**
      * 权限id
      */
-    @ApiModelProperty("权限id")
     private Integer aid;
 }

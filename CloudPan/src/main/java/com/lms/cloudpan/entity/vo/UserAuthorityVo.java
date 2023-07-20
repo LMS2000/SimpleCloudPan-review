@@ -1,4 +1,4 @@
-package com.lms.cloudpan.entity.dto;
+package com.lms.cloudpan.entity.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
-public class UserAuthorityDto {
+public class UserAuthorityVo {
     /**
      * 当前用户如何被禁用了或者认证中心不存在,就是不合法的
      */

@@ -8,7 +8,6 @@ import com.lms.cloudpan.entity.dto.UploadLogDto;
 import com.lms.cloudpan.entity.vo.UploadLogVo;
 import com.lms.cloudpan.mapper.UploadLogMapper;
 import com.lms.cloudpan.service.IUploadLogService;
-import com.lms.page.CustomPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,16 +26,16 @@ public class UploadLogServiceImpl extends ServiceImpl<UploadLogMapper, UploadLog
     private OssClient ossClient;
 
     @Override
-    public Integer saveCourserUploadLog(UploadLogVo uploadLogVo) {
-        UploadLog courseruploadlog = UPLOAD_LOG_CONVERTER.toUploadLog(uploadLogVo);
+    public Integer saveCourserUploadLog(UploadLogDto uploadLogDto) {
+        UploadLog courseruploadlog = UPLOAD_LOG_CONVERTER.toUploadLog(uploadLogDto);
         save(courseruploadlog);
         return courseruploadlog.getId();
     }
 
     @Override
-    public UploadLogDto getCourserUploadLogById(Integer id) {
+    public UploadLogVo getCourserUploadLogById(Integer id) {
         UploadLog courseruploadlog = getById(id);
-        return UPLOAD_LOG_CONVERTER.toUploadLogDto(courseruploadlog);
+        return UPLOAD_LOG_CONVERTER.toUploadLogVo(courseruploadlog);
     }
 
 //    @Override

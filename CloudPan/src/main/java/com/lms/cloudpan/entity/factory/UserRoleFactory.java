@@ -19,8 +19,8 @@ public class UserRoleFactory {
         @Mapping(target = "id",ignore = true),
     }
         )
-        UserRole toUserRole(UserRoleVo userroleVo);
-        UserRoleDto toUserRoleDto(UserRole userrole);
-        List<UserRoleDto> toListUserRoleDto(List<UserRole> userrole);
+        UserRole toUserRole(UserRoleDto userRoleDto);
+        UserRoleVo toUserRoleVo(UserRole userrole);
+        List<UserRoleVo> toListUserRoleVo(List<UserRole> userrole);
     }
 }

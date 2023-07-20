@@ -1,9 +1,9 @@
-package com.lms.cloudpan.entity.vo;
+package com.lms.cloudpan.entity.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-public class DownloadFileVo {
+public class DownloadFileDto {
 
     @NotBlank(message = "下载路径不能为空")
     @NotNull(message = "下载路径不能为空")

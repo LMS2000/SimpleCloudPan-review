@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author 大忽悠
  * @create 2023/3/8 9:12
  */
+//自定义线程池
 @Configuration
 public class ExecutorConfiguration {
 

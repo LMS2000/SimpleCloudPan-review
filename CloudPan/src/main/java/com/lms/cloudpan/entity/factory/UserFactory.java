@@ -16,8 +16,8 @@ public class UserFactory {
                 @Mapping(target = "userId",ignore = true),
         }
         )
-        User toUser(UserVo userVo);
-        UserDto toUserDto(User user);
-        List<UserDto> toListUserDto(List<User> user);
+        User toUser(UserDto userDto);
+        UserVo toUserVo(User user);
+        List<UserVo> toListUserVo(List<User> user);
     }
 }

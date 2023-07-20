@@ -1,7 +1,6 @@
 package com.lms.cloudpan.controller;
 
-import com.infrastructure.jwt.JwtUser;
-import com.lms.cloudpan.entity.dao.User;
+
 import com.lms.cloudpan.entity.dto.FolderDto;
 import com.lms.cloudpan.entity.vo.FolderVo;
 import com.lms.cloudpan.service.IFolderService;
@@ -9,7 +8,6 @@ import com.lms.cloudpan.utis.SecurityUtils;
 import com.lms.result.EnableResponseAdvice;
 import com.lms.result.ResultData;
 import io.swagger.annotations.Api;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -33,7 +31,7 @@ public class FolderController {
      * @return
      */
     @PostMapping("/getUserDir")
-    public List<FolderDto> getCurrentDir(@RequestParam("path") String path) {
+    public List<FolderVo> getCurrentDir(@RequestParam("path") String path) {
         Integer userId = SecurityUtils.getLoginUser().getUserId();
         return folderService.getUserFolder(path, userId);
     }
@@ -43,7 +41,7 @@ public class FolderController {
      * @return
      */
     @GetMapping("/getTierDir")
-    public List<FolderDto> getTierFolders(){
+    public List<FolderVo> getTierFolders(){
         Integer userId = SecurityUtils.getLoginUser().getUserId();
         return folderService.getFolderList(userId);
     }
@@ -66,13 +64,13 @@ public class FolderController {
     /**
      * 重命名文件夹
      *
-     * @param folderVo
+     * @param folderDto
      * @return
      */
     @PostMapping("/rename")
-    public Boolean renameFolder(@RequestBody FolderVo folderVo) {
+    public Boolean renameFolder(@RequestBody FolderDto folderDto) {
         Integer userId = SecurityUtils.getLoginUser().getUserId();
-        return folderService.renameFolder(folderVo.getFolderId(), folderVo.getNewPath(), userId);
+        return folderService.renameFolder(folderDto.getFolderId(), folderDto.getNewPath(), userId);
     }
 
 

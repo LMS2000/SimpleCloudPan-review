@@ -1,4 +1,4 @@
-package com.lms.cloudpan.entity.vo;
+package com.lms.cloudpan.entity.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 @Builder
 @Slf4j
-public class ResetPasswordVo implements Serializable {
+public class ResetPasswordDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private String oldPassword;

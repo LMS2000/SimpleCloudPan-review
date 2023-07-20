@@ -1,41 +1,40 @@
 package com.lms.cloudpan.entity.dto;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lms.cloudpan.constants.FileConstants;
+import com.lms.redis.RedisCache;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
+
+import static com.lms.cloudpan.constants.FileConstants.FILE_UPLOAD_TASK;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 @Slf4j
-public class FileDto  implements Serializable {
+public class FileDto {
 
-    private static final long serialVersionUID = 1L;
 
-    private  Integer fileId;
 
-    private String fileName;
 
-    private String fileUrl;
-    private String fileType;
+    private String folderPath;
 
-    private Integer deleteFlag;
-    private Long size;
-    private Integer userId;
-    private String shareLink;
-    private Integer folderId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime createTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime updateTime;
 
+    private MultipartFile file;
+
+    public static void changeUploadState(RedisCache redisCache, String taskId, Integer state) {
+        redisCache.setCacheObject(FILE_UPLOAD_TASK + taskId, state, 30, TimeUnit.MINUTES);
+    }
+
+    public static Boolean getUploadState(RedisCache redisCache, String taskId) {
+        Integer state = redisCache.getCacheObject(FILE_UPLOAD_TASK + taskId);
+        return state.equals(FileConstants.FILE_UPLOAD_SUCCESS);
+    }
 }

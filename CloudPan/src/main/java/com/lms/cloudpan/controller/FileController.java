@@ -1,11 +1,6 @@
 package com.lms.cloudpan.controller;
 
 
-import com.infrastructure.jwt.JwtUser;
-
-import com.infrastructure.validator.MultipartFileNotEmptyCheck;
-import com.infrastructure.validator.NotEmptyCheck;
-import com.lms.cloudpan.entity.dao.User;
 import com.lms.cloudpan.entity.dto.FileDto;
 import com.lms.cloudpan.entity.vo.FileVo;
 
@@ -16,15 +11,12 @@ import com.lms.result.EnableResponseAdvice;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.logging.log4j.message.AsynchronouslyFormattable;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -55,10 +47,10 @@ public class FileController {
     public String insertFile(@RequestBody @NotNull MultipartFile file, @NotNull @ApiParam("指定上传路径")  @RequestParam("path")  String path,
                         @NotNull   @RequestParam("fingerPrint")  String fingerPrint) {
         Integer userId = SecurityUtils.getLoginUser().getUser().getUserId();
-        FileVo fileVo = new FileVo();
-        fileVo.setFile(file);
-        fileVo.setFolderPath(path);
-        return fileService.insertFile(fileVo, userId,fingerPrint);
+        FileDto fileDto = new FileDto();
+        fileDto.setFile(file);
+        fileDto.setFolderPath(path);
+        return fileService.insertFile(fileDto, userId,fingerPrint);
     }
 
     /**
@@ -79,7 +71,7 @@ public class FileController {
      */
     @PostMapping("/getFiles")
     @ApiOperation("获取当前路径下的全部文件")
-    public List<FileDto> getFilesByPath(@NotNull @RequestParam("path") String path) {
+    public List<FileVo> getFilesByPath(@NotNull @RequestParam("path") String path) {
         Integer userId = SecurityUtils.getLoginUser().getUserId();
         //判断path是否以/或者\\开头
         if (!path.startsWith("/")) {
@@ -108,7 +100,7 @@ public class FileController {
      * @return
      */
     @GetMapping("/search/{fileName}")
-    public List<FileDto> searchFileByName(@NotNull @PathVariable("fileName") String fileName) {
+    public List<FileVo> searchFileByName(@NotNull @PathVariable("fileName") String fileName) {
         Integer userId = SecurityUtils.getLoginUser().getUserId();
         return fileService.searchFile(fileName, userId);
     }

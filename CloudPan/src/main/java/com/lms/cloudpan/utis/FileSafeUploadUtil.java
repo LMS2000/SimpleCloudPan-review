@@ -1,22 +1,15 @@
 package com.lms.cloudpan.utis;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.extra.spring.SpringUtil;
 import com.lms.cloudpan.client.OssClient;
 import com.lms.cloudpan.constants.FileConstants;
 import com.lms.cloudpan.entity.dao.UploadLog;
-import com.lms.cloudpan.entity.vo.UploadLogVo;
 import com.lms.cloudpan.service.IUploadLogService;
 
 import com.lms.redis.RedisCache;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 //用于文件回滚
 public class FileSafeUploadUtil {

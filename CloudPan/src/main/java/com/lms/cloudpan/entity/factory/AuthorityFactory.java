@@ -20,10 +20,10 @@ public class AuthorityFactory {
         @Mappings({
                 @Mapping(target = "aid", ignore = true),
         })
-        Authority toAuthority(AuthorityVo authorityVo);
+        Authority toAuthority(AuthorityDto authorityDto);
 
-        AuthorityDto toAuthorityDto(Authority authority);
+        AuthorityVo toAuthorityVo(Authority authority);
 
-        List<AuthorityDto> toListAuthorityDto(List<Authority> authority);
+        List<AuthorityVo> toListAuthorityVo(List<Authority> authority);
     }
 }

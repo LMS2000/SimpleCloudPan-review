@@ -8,7 +8,6 @@ import com.lms.cloudpan.constants.ShareConstants;
 import com.lms.cloudpan.entity.dao.File;
 import com.lms.cloudpan.entity.dao.Folder;
 import com.lms.cloudpan.entity.dao.User;
-import com.lms.cloudpan.entity.dto.FolderDto;
 import com.lms.cloudpan.entity.vo.FolderVo;
 import com.lms.cloudpan.exception.BusinessException;
 import com.lms.cloudpan.mapper.FileMapper;
@@ -24,7 +23,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +58,7 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
 
     //获取文件夹树
     @Override
-    public List<FolderDto> getUserFolder(String path,Integer userId) {
+    public List<FolderVo> getUserFolder(String path, Integer userId) {
 
         Map<String,Object> queryMap=new HashMap<>();
         queryMap.put("userId",userId);
@@ -78,11 +76,11 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
 
 
         //获取全部的文件夹集合
-        List<FolderDto> temp=new ArrayList<>();
+        List<FolderVo> temp=new ArrayList<>();
         subFolders.forEach(subFolder -> {
-            FolderDto folderDto=new FolderDto();
-            BeanUtils.copyProperties(subFolder,folderDto);
-            temp.add(folderDto);
+            FolderVo folderVo=new FolderVo();
+            BeanUtils.copyProperties(subFolder,folderVo);
+            temp.add(folderVo);
         });
         return temp;
 
@@ -167,11 +165,11 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
 
 
         //查询用户所有的文件夹
-        List<FolderDto> folderNode = getFolderNode(uid);
+        List<FolderVo> folderNode = getFolderNode(uid);
 
 
         //获取子文件夹树
-        FolderDto subFolders = getPath(folder.getFolderName(), folderNode.get(0));
+        FolderVo subFolders = getPath(folder.getFolderName(), folderNode.get(0));
 
         //获取用户的全部文件
         List<File> uesrFiles = fileMapper.selectList(new QueryWrapper<File>().eq("user_id",uid).eq("delete_flag",0));
@@ -185,9 +183,9 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
         return folderMapper.deleteById(folderId)>0;
     }
 
-    private void deleteSubFile(FolderDto folderDto,List<File> files){
+    private void deleteSubFile(FolderVo folderDto,List<File> files){
         // 将文件夹内的子文件夹和文件添加到 zip 中
-        for (FolderDto subFolder : folderDto.getChildrenList()) {
+        for (FolderVo subFolder : folderDto.getChildrenList()) {
             deleteSubFile( subFolder,files);
         }
         //标记删除
@@ -226,7 +224,7 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
         }
 
         //查出用户的子文件夹
-        List<FolderDto> folderNode = getFolderNode(uid);
+        List<FolderVo> folderNode = getFolderNode(uid);
 
         //获取目标的子文件夹
 
@@ -235,7 +233,7 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
         }
         //获取目标文件及其子文件夹
         assert folderNode != null;
-        FolderDto subFolders = getPath(path, folderNode.get(0));
+        FolderVo subFolders = getPath(path, folderNode.get(0));
 
         //获取目标用户所有的文件
         List<File> files = fileMapper.selectList(new QueryWrapper<File>().eq("user_id",uid).eq("delete_flag",0));
@@ -253,7 +251,7 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
 
 
     @Override
-    public List<FolderDto> getFolderList(Integer uid) {
+    public List<FolderVo> getFolderList(Integer uid) {
         return getFolderNode(uid).get(0).getChildrenList();
     }
 
@@ -261,18 +259,18 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
 
 
 
-    private List<FolderDto> getFolderNode(Integer uid){
+    private List<FolderVo> getFolderNode(Integer uid){
         List<Folder> list1 = folderMapper.selectList(new QueryWrapper<Folder>().eq("user_id",uid).eq("delete_flag",0));
-        List<FolderDto> temp=new ArrayList<>();
+        List<FolderVo> temp=new ArrayList<>();
         list1.stream().forEach(folder -> {
-            FolderDto folderDto=new FolderDto();
+            FolderVo folderDto=new FolderVo();
             BeanUtils.copyProperties(folder,folderDto);
             temp.add(folderDto);
         });
 
                 //获取全部的顶级文件夹
         //获取一级的分类
-        List<FolderDto> resultList= temp.stream()
+        List<FolderVo> resultList= temp.stream()
                 .filter(folderDto -> folderDto.getParentFolder()==0)
                 .map(folderDto -> {
                     folderDto.setChildrenList(getChildrenList(folderDto,temp));
@@ -281,8 +279,8 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
                 .collect(Collectors.toList());
         return resultList;
     }
-    private List<FolderDto> getChildrenList(FolderDto cur,List<FolderDto> allList){
-        List<FolderDto> res=allList.stream()
+    private List<FolderVo> getChildrenList(FolderVo cur,List<FolderVo> allList){
+        List<FolderVo> res=allList.stream()
                 .filter(categoryEntity -> categoryEntity.getParentFolder().equals(cur.getFolderId()))
                 .map(folderDto -> {
                     folderDto.setChildrenList(getChildrenList(folderDto,allList));
@@ -296,7 +294,7 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
 
 
     //多叉树遍历问题，每个用户只有一个根路径，每个路径都有若干个子路径
-    public  FolderDto getPath(String path,FolderDto folderNode){
+    public  FolderVo getPath(String path,FolderVo folderNode){
         if(folderNode==null)
             return null;
         if(folderNode.getFolderName().equals(path)){
@@ -304,8 +302,8 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper,Folder> implemen
         }
         if(folderNode.getChildrenList()==null)return null;
         //根据path获取对应的节点
-        for (FolderDto node : folderNode.getChildrenList()) {
-            FolderDto path1 = getPath(path, node);
+        for (FolderVo node : folderNode.getChildrenList()) {
+            FolderVo path1 = getPath(path, node);
             if(path1!=null)return path1;
         }
         return null;

@@ -23,20 +23,20 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
 
 
     @Override
-    public Boolean saveOperationLog(OperationLogVo operationlogVo) {
-        OperationLog operationlog = OPERATIONLOG_CONVERTER.toOperationLog(operationlogVo);
+    public Boolean saveOperationLog(OperationLogDto operationLogDto) {
+        OperationLog operationlog = OPERATIONLOG_CONVERTER.toOperationLog(operationLogDto);
        return save(operationlog);
 
     }
     @Override
-    public OperationLogDto getOperationLogById(Integer id) {
+    public OperationLogVo getOperationLogById(Integer id) {
         OperationLog operationlog = getById(id);
-        return OPERATIONLOG_CONVERTER.toOperationLogDto(operationlog);
+        return OPERATIONLOG_CONVERTER.toOperationLogVo(operationlog);
     }
     @Override
-    public List<OperationLogDto> listOperationLog(CustomPage customPage) {
+    public List<OperationLogVo> listOperationLog(CustomPage customPage) {
         List<OperationLog> operationlogList = CustomPage.getPageResult(customPage, new OperationLog(), this, null);
-        return OPERATIONLOG_CONVERTER.toListOperationLogDto(operationlogList);
+        return OPERATIONLOG_CONVERTER.toListOperationLogVo(operationlogList);
     }
     @Override
     public Boolean delOperationLogById(Integer id) {

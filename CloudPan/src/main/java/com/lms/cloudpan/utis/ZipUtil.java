@@ -1,11 +1,8 @@
 package com.lms.cloudpan.utis;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lms.cloudpan.config.OssProperties;
 import com.lms.cloudpan.entity.dao.File;
-import com.lms.cloudpan.entity.dao.Folder;
-import com.lms.cloudpan.entity.dto.FolderDto;
-import org.springframework.beans.BeanUtils;
+import com.lms.cloudpan.entity.vo.FolderVo;
 import org.springframework.util.StreamUtils;
 
 import java.io.FileInputStream;
@@ -30,10 +27,10 @@ public class ZipUtil {
      * @return
      * @throws IOException
      */
-    public static String compressFilesInFolder(FolderDto folderDto, List<File> files, OssProperties ossProperties, Integer uid) throws IOException {
+    public static String compressFilesInFolder(FolderVo folderVo, List<File> files, OssProperties ossProperties, Integer uid) throws IOException {
 
         // 声明压缩文件名，以及临时文件存储路径
-        String folderName = folderDto.getFolderName();
+        String folderName = folderVo.getFolderName();
 
         // /root/sad
         int lastIndex = folderName.lastIndexOf("/");
@@ -48,7 +45,7 @@ public class ZipUtil {
         // 压缩文件
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tmpPath))) {
             // 将文件夹内的所有子文件夹和文件打包压缩到 zip 文件中
-            addFolderToZip("", folderDto, zos, files, ossProperties);
+            addFolderToZip("", folderVo, zos, files, ossProperties);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,7 +60,7 @@ public class ZipUtil {
     }
 
     // 将文件夹和其内部的所有子文件夹和文件打包压缩到 zip 中
-    private static void addFolderToZip(String parentFolderName, FolderDto folder, ZipOutputStream zos, List<File> files, OssProperties ossProperties) throws IOException {
+    private static void addFolderToZip(String parentFolderName, FolderVo folder, ZipOutputStream zos, List<File> files, OssProperties ossProperties) throws IOException {
 
         // 将文件夹本身添加到 zip 中
 
@@ -80,7 +77,7 @@ public class ZipUtil {
         zos.closeEntry();
 
         // 将文件夹内的子文件夹和文件添加到 zip 中
-        for (FolderDto subFolder : folder.getChildrenList()) {
+        for (FolderVo subFolder : folder.getChildrenList()) {
             addFolderToZip(folderName + "/", subFolder, zos, files, ossProperties);
         }
         //获取该目录下的子文件
@@ -113,11 +110,11 @@ public class ZipUtil {
     }
 
 
-    public static List<FolderDto> getFolderNode(List<FolderDto> list){
+    public static List<FolderVo> getFolderNode(List<FolderVo> list){
 
         //获取全部的顶级文件夹
         //获取一级的分类
-        List<FolderDto> resultList= list.stream()
+        List<FolderVo> resultList= list.stream()
                 .filter(folderDto -> folderDto.getParentFolder()==0)
                 .map(folderDto -> {
                     folderDto.setChildrenList(getChildrenList(folderDto,list));
@@ -128,8 +125,8 @@ public class ZipUtil {
     }
 
 
-    public static List<FolderDto> getChildrenList(FolderDto cur, List<FolderDto> allList) {
-        List<FolderDto> res = allList.stream()
+    public static List<FolderVo> getChildrenList(FolderVo cur, List<FolderVo> allList) {
+        List<FolderVo> res = allList.stream()
                 .filter(categoryEntity -> categoryEntity.getParentFolder().equals(cur.getFolderId()))
                 .map(folderDto -> {
                     folderDto.setChildrenList(getChildrenList(folderDto, allList));
@@ -140,13 +137,13 @@ public class ZipUtil {
 
 
 
-    public static  FolderDto getTierFolder(String pathName,List<FolderDto> list){
-        List<FolderDto> folderNode = getFolderNode(list);
+    public static FolderVo getTierFolder(String pathName, List<FolderVo> list){
+        List<FolderVo> folderNode = getFolderNode(list);
       return   getPath(pathName,folderNode.get(0));
     }
 
     //多叉树遍历问题，每个用户只有一个根路径，每个路径都有若干个子路径
-    public static FolderDto getPath(String path, FolderDto folderNode) {
+    public static FolderVo getPath(String path, FolderVo folderNode) {
         if (folderNode == null)
             return null;
         if (folderNode.getFolderName().equals(path)) {
@@ -154,8 +151,8 @@ public class ZipUtil {
         }
         if (folderNode.getChildrenList() == null) return null;
         //根据path获取对应的节点
-        for (FolderDto node : folderNode.getChildrenList()) {
-            FolderDto path1 = getPath(path, node);
+        for (FolderVo node : folderNode.getChildrenList()) {
+            FolderVo path1 = getPath(path, node);
             if (path1 != null) return path1;
         }
         return null;

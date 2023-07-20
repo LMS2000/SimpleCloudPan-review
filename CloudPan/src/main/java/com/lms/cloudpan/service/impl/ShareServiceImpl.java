@@ -2,23 +2,19 @@ package com.lms.cloudpan.service.impl;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.lms.cloudpan.config.OssProperties;
-import com.lms.cloudpan.constants.FileConstants;
 import com.lms.cloudpan.constants.ShareConstants;
 import com.lms.cloudpan.entity.dao.File;
 import com.lms.cloudpan.entity.dao.Folder;
 import com.lms.cloudpan.entity.dao.Shares;
 import com.lms.cloudpan.entity.dao.User;
-import com.lms.cloudpan.entity.dto.FolderDto;
-import com.lms.cloudpan.entity.dto.UserDto;
-import com.lms.cloudpan.entity.vo.CancelShareVo;
-import com.lms.cloudpan.entity.vo.ShareVo;
+import com.lms.cloudpan.entity.dto.CancelShareDto;
+import com.lms.cloudpan.entity.dto.ShareDto;
+import com.lms.cloudpan.entity.vo.FolderVo;
+import com.lms.cloudpan.entity.vo.UserVo;
 import com.lms.cloudpan.exception.BusinessException;
-import com.lms.cloudpan.mapper.FileMapper;
-import com.lms.cloudpan.mapper.FolderMapper;
 import com.lms.cloudpan.mapper.ShareMapper;
 import com.lms.cloudpan.service.IFileService;
 import com.lms.cloudpan.service.IFolderService;
@@ -30,10 +26,8 @@ import com.lms.cloudpan.utis.ShareUtil;
 import com.lms.cloudpan.utis.ZipUtil;
 import com.lms.contants.HttpCode;
 import com.lms.redis.RedisCache;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -80,22 +74,22 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
 
     /**
      * 用户发起分享，校验分享信息后将被分享的信息备份，如何缓存分享信息，生成分享链接
-     * @param shareVo 分享信息
+     * @param shareDto 分享信息
      * @param uid 当前用户
      * @return
      */
     @Override
     @Transactional
-    public String shareResource(ShareVo shareVo, Integer uid) {
+    public String shareResource(ShareDto shareDto, Integer uid) {
 
 
         //校验(根据id和type去判断资源是否存在)
-        Integer shareType = shareVo.getShareType();
+        Integer shareType = shareDto.getShareType();
         boolean existCheck = true;
         if (ShareConstants.FILE_TYPE.equals(shareType)) {
-            existCheck = MybatisUtils.existCheck(fileService, Map.of("file_id", shareVo.getSharedId()));
+            existCheck = MybatisUtils.existCheck(fileService, Map.of("file_id", shareDto.getSharedId()));
         } else if (ShareConstants.FOLDER_TYPE.equals(shareType)) {
-            existCheck = MybatisUtils.existCheck(folderService, Map.of("folder_id", shareVo.getSharedId()));
+            existCheck = MybatisUtils.existCheck(folderService, Map.of("folder_id", shareDto.getSharedId()));
         } else {
             existCheck = false;
         }
@@ -105,7 +99,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
 
 
         //记录这个分享信息
-        Shares shares = SHARE_CONVERTER.toShare(shareVo);
+        Shares shares = SHARE_CONVERTER.toShare(shareDto);
         //随机生成唯一标识
         String shareKey = UUID.randomUUID().toString();
 
@@ -114,7 +108,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
         //设置分享时间
         shares.setShareTime(new Date());
         //设置过期时间
-        long timestamp = System.currentTimeMillis() + shareVo.getExpiration() * EXPIRA_TIME;
+        long timestamp = System.currentTimeMillis() + shareDto.getExpiration() * EXPIRA_TIME;
         shares.setExpirationDate(new Date(timestamp));
         shares.setShareUser(uid);
 
@@ -125,26 +119,26 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
         String shareLink = ShareConstants.SHARE_LINK_HEADER + shareKey;
         //修改资源的shareLink
         if (ShareConstants.FILE_TYPE.equals(shareType)) {
-            fileService.updateById(File.builder().fileId(shareVo.getSharedId()).shareLink(shareLink).build());
+            fileService.updateById(File.builder().fileId(shareDto.getSharedId()).shareLink(shareLink).build());
         } else {
-            folderService.updateById(Folder.builder().folderId(shareVo.getSharedId()).shareLink(shareLink).build());
+            folderService.updateById(Folder.builder().folderId(shareDto.getSharedId()).shareLink(shareLink).build());
         }
 
 
         //调用异步设置锁定资源缓存
-        CompletableFuture.runAsync(()-> {SpringUtil.getBean(ShareServiceImpl.class).setlockResourceCache(shareVo,shareKey,uid);},
+        CompletableFuture.runAsync(()-> {SpringUtil.getBean(ShareServiceImpl.class).setlockResourceCache(shareDto,shareKey,uid);},
                 SpringUtil.getBean("asyncExecutor", Executor.class));
         return shareLink;
     }
 
     /**
      * 异步设置锁定资源的缓存
-     * @param shareVo
+     * @param shareDto
      * @param shareKey
      * @param uid
      */
-    public void setlockResourceCache(ShareVo shareVo,String shareKey,Integer uid){
-        Integer shareType = shareVo.getShareType();
+    public void setlockResourceCache(ShareDto shareDto,String shareKey,Integer uid){
+        Integer shareType = shareDto.getShareType();
         String mapKey = ShareConstants.SHARE_MAP + shareKey;
 
         Map<String, Object> cacheMap = redisCache.getCacheMap(mapKey);
@@ -155,16 +149,16 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
         //设置缓存锁定分享资源
         if (ShareConstants.FILE_TYPE.equals(shareType)) {
             String key=ShareConstants.SHARED_FILEIDS+uid+"_"+shareKey;
-            redisCache.setCacheList(key,List.of(shareVo.getSharedId()));
+            redisCache.setCacheList(key,List.of(shareDto.getSharedId()));
         } else {
             //获取层级的文件夹，然后递归添加锁定资源的文件夹id列表
-            Folder sharedFolder = folderService.getOne(new QueryWrapper<Folder>().eq("folder_id", shareVo.getSharedId()));
+            Folder sharedFolder = folderService.getOne(new QueryWrapper<Folder>().eq("folder_id", shareDto.getSharedId()));
 
             List<Folder> sharedFolderList =
                     folderService.list(new QueryWrapper<Folder>().eq("user_id", uid));
             List<File> fileList = fileService.list(new QueryWrapper<File>().eq("user_id", uid));
 
-            FolderDto tierFolder = ZipUtil.getTierFolder(sharedFolder.getFolderName(), FOLDER_CONVERTER.toListFolderDto(sharedFolderList));
+            FolderVo tierFolder = ZipUtil.getTierFolder(sharedFolder.getFolderName(), FOLDER_CONVERTER.toListFolderVo(sharedFolderList));
 
             Set<Integer> files=new HashSet<>();
             Set<Integer> folders=new HashSet<>();
@@ -174,27 +168,27 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
             String fileKey=ShareConstants.SHARED_FILEIDS+uid+"_"+shareKey;
             String folderKey=ShareConstants.SHARED_FOLDERIDS+uid+"_"+shareKey;
             redisCache.setCacheSet(fileKey,files);
-            redisCache.expire(fileKey,shareVo.getExpiration(),TimeUnit.DAYS);
+            redisCache.expire(fileKey,shareDto.getExpiration(),TimeUnit.DAYS);
             redisCache.setCacheSet(folderKey,folders);
-            redisCache.expire(folderKey,shareVo.getExpiration(),TimeUnit.DAYS);
+            redisCache.expire(folderKey,shareDto.getExpiration(),TimeUnit.DAYS);
         }
 
 
         Map<String, Object> map = new HashMap<>();
         map.put(ShareConstants.SHARE_NUM_KEY, 0);
-        map.put(ShareConstants.SHARE_MAX_NUM_KEY, shareVo.getDownloadCount());
-        map.put(ShareConstants.SHARE_SECRET_KEY, shareVo.getShareSecretKey());
+        map.put(ShareConstants.SHARE_MAX_NUM_KEY, shareDto.getDownloadCount());
+        map.put(ShareConstants.SHARE_SECRET_KEY, shareDto.getShareSecretKey());
         //设置过期时间
         redisCache.setCacheMap(mapKey, map);
-        redisCache.expire(mapKey, shareVo.getExpiration(), TimeUnit.DAYS);
+        redisCache.expire(mapKey, shareDto.getExpiration(), TimeUnit.DAYS);
     }
 
     //递归获取因分享而锁定的资源
-    private void addResourceList(FolderDto folder,Set<Integer> folders){
+    private void addResourceList(FolderVo folder,Set<Integer> folders){
         if(folder==null)return;
         folders.add(folder.getFolderId());
-        for (FolderDto folderDto : folder.getChildrenList()) {
-            addResourceList(folderDto,folders);
+        for (FolderVo folderVo : folder.getChildrenList()) {
+            addResourceList(folderVo,folders);
         }
     }
 
@@ -259,7 +253,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
         Shares share = this.getOne(new QueryWrapper<Shares>().eq("share_key", shareKey));
         Integer shareType = share.getShareType();
 
-        UserDto userById = userService.getUserById(uid);
+        UserVo userById = userService.getUserById(uid);
 
 
         //文件类型直接拷贝
@@ -317,7 +311,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
             List<Folder> sharedFolderList =
                     folderService.list(new QueryWrapper<Folder>().eq("user_id", share.getShareUser()));
 
-            FolderDto tierFolder = ZipUtil.getTierFolder(sharedFolder.getFolderName(), FOLDER_CONVERTER.toListFolderDto(sharedFolderList));
+            FolderVo tierFolder = ZipUtil.getTierFolder(sharedFolder.getFolderName(), FOLDER_CONVERTER.toListFolderVo(sharedFolderList));
 
             //校验用户配额
             validUserQuota(userById.getUseQuota() + tierFolder.getSize(), userById.getQuota());
@@ -340,26 +334,26 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
 
     @Override
     @Transactional
-    public Boolean cancelShare(CancelShareVo cancelShareVo, Integer uid) {
+    public Boolean cancelShare(CancelShareDto cancelShareDto, Integer uid) {
 
         //删除缓存
         //删除分享信息缓存
         //删除分享锁定资源缓存
-        ShareUtil.deleteSharedResourceCache(cancelShareVo.getShareType(),uid,cancelShareVo.getShareKey());
+        ShareUtil.deleteSharedResourceCache(cancelShareDto.getShareType(),uid,cancelShareDto.getShareKey());
 
         //删除分享信息
 
-        this.remove(new QueryWrapper<Shares>().eq("share_key",cancelShareVo.getShareKey()));
+        this.remove(new QueryWrapper<Shares>().eq("share_key",cancelShareDto.getShareKey()));
 
         //修改资源的
-        Integer shareType = cancelShareVo.getShareType();
+        Integer shareType = cancelShareDto.getShareType();
 
         if(shareType.equals(ShareConstants.FILE_TYPE)){
-            fileService.updateById(File.builder().fileId(cancelShareVo.getSharedId())
+            fileService.updateById(File.builder().fileId(cancelShareDto.getSharedId())
                     .shareLink("#").build());
 
         }else{
-            folderService.updateById(Folder.builder().folderId(cancelShareVo.getSharedId())
+            folderService.updateById(Folder.builder().folderId(cancelShareDto.getSharedId())
                     .shareLink("#").build());
         }
 
@@ -367,7 +361,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
     }
 
 
-    private void insertFolder(String parentFolderName, FolderDto folder, List<File> files, Integer uid,Integer pid) {
+    private void insertFolder(String parentFolderName, FolderVo folder, List<File> files, Integer uid,Integer pid) {
 
         String folderName = folder.getFolderName();
         int lastIndex = folderName.lastIndexOf("/");
@@ -387,7 +381,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Shares> implement
 
 
         // 遍历子文件夹
-        for (FolderDto subFolder : folder.getChildrenList()) {
+        for (FolderVo subFolder : folder.getChildrenList()) {
             insertFolder(folderName + "/", subFolder, files, uid,build.getFolderId());
         }
         //获取该目录下的子文件

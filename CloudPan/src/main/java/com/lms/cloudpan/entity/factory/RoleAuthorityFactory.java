@@ -20,10 +20,10 @@ public class RoleAuthorityFactory {
         @Mappings({
                 @Mapping(target = "id", ignore = true),
         })
-        RoleAuthority toRoleAuthority(RoleAuthorityVo roleauthorityVo);
+        RoleAuthority toRoleAuthority(RoleAuthorityDto roleAuthorityDto);
 
-        RoleAuthorityDto toRoleAuthorityDto(RoleAuthority roleauthority);
+        RoleAuthorityVo toRoleAuthorityVo(RoleAuthority roleauthority);
 
-        List<RoleAuthorityDto> toListRoleAuthorityDto(List<RoleAuthority> roleauthority);
+        List<RoleAuthorityVo> toListRoleAuthorityVo(List<RoleAuthority> roleauthority);
     }
 }

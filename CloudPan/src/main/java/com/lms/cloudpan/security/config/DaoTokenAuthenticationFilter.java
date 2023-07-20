@@ -1,6 +1,7 @@
 package com.lms.cloudpan.security.config;
 
 import com.lms.cloudpan.utis.ResponseUtil;
+import com.lms.contants.HttpCode;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -18,9 +19,10 @@ public class DaoTokenAuthenticationFilter extends AbstractTokenAuthenticationFil
         this.userDetailsService = userDetailsService;
     }
 
+    //认证未通过时的返回
     @Override
     protected void authenticationFailure(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        ResponseUtil.renderString(response,"认证失败,无权限");
+        ResponseUtil.renderString(response, HttpCode.NO_AUTH_ERROR,false);
     }
 
     @Override

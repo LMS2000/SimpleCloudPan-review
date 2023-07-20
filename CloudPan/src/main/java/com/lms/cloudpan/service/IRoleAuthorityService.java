@@ -3,7 +3,8 @@ package com.lms.cloudpan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lms.cloudpan.entity.dao.RoleAuthority;
-import com.lms.cloudpan.entity.dto.AuthorityDto;
+import com.lms.cloudpan.entity.vo.AuthorityVo;
+import com.lms.cloudpan.entity.vo.GetRoleAuthorityVo;
 
 
 import java.util.List;
@@ -18,5 +19,6 @@ public interface IRoleAuthorityService extends IService<RoleAuthority> {
 
     Boolean revokeAuthorityFromRole(Integer roleId, List<Integer> authorityList);
 
-    List<AuthorityDto> getAuthorityOfRole(Integer roleId);
+    List<AuthorityVo> getAuthorityOfRole(Integer roleId);
+    GetRoleAuthorityVo getAuthorityOfRoleTree(Integer rid);
 }

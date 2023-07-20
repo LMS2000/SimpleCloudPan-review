@@ -1,4 +1,4 @@
-package com.lms.cloudpan.entity.vo;
+package com.lms.cloudpan.entity.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @Builder
 @Slf4j
-public class UploadFileVo {
+public class UploadFileDto {
 
     private String path;
 

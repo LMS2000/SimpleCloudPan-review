@@ -29,11 +29,16 @@ public class User implements Serializable {
     private String email;
     private  Integer enable;
 
+    @TableField("delete_flag")
+    private  Integer deleteFlag;
+
     private String avatar;
 
     private Long useQuota;
     private Long quota;
 
+
+    private String remark;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
     @TableField(fill = FieldFill.INSERT_UPDATE)

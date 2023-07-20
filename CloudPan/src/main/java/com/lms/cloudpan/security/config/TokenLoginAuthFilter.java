@@ -3,6 +3,8 @@ package com.lms.cloudpan.security.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infrastructure.jwt.Jwt;
 import com.infrastructure.jwt.LoginUser;
+import com.lms.cloudpan.utis.ResponseUtil;
+import com.lms.contants.HttpCode;
 import com.lms.result.ResultData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -81,7 +83,7 @@ public abstract class TokenLoginAuthFilter extends GenericFilterBean {
     protected abstract Authentication getAuthentication(HttpServletRequest request, HttpServletResponse httpServletResponse);
 
     private void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, Exception ex) throws IOException {
-        writeRes(response,500,"登录认证失败: "+ ex.getMessage());
+        ResponseUtil.renderString(response, HttpCode.NOT_LOGIN_ERROR,false);
     }
 
     /**
@@ -96,11 +98,11 @@ public abstract class TokenLoginAuthFilter extends GenericFilterBean {
         try {
             LoginUser loginUser = (LoginUser) authenticationResult.getPrincipal();
             if(loginUser.getUsername()==null){
-                writeRes(httpServletResponse,500,"登录认证失败");
+                ResponseUtil.renderString(httpServletResponse, HttpCode.NOT_LOGIN_ERROR,false);
             }
-            writeRes(httpServletResponse,200,jwt.createToken(loginUser));
+            ResponseUtil.renderString(httpServletResponse, HttpCode.SUCCESS,true,jwt.createToken(loginUser));
         }catch (Exception e){
-            writeRes(httpServletResponse,500,"登录认证失败");
+            ResponseUtil.renderString(httpServletResponse, HttpCode.NOT_LOGIN_ERROR,false);
             e.printStackTrace();
         }
     }

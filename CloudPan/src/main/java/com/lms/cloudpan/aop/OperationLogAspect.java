@@ -2,7 +2,8 @@ package com.lms.cloudpan.aop;
 
 
 
-import com.lms.cloudpan.entity.vo.OperationLogVo;
+
+import com.lms.cloudpan.entity.dto.OperationLogDto;
 import com.lms.cloudpan.service.IOperationLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +47,9 @@ public class OperationLogAspect {
               Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
               UserDetails userDetails = (UserDetails) authentication.getPrincipal();
               String content= String.format(opLog.desc(),methodArgs);
-              OperationLogVo operationLogVo =
-                      OperationLogVo.builder().operationName(userDetails.getUsername()).operationContent(content).build();
-             operationLogService.saveOperationLog(operationLogVo);
+              OperationLogDto operationLogDto =
+                      OperationLogDto.builder().operationName(userDetails.getUsername()).operationContent(content).build();
+             operationLogService.saveOperationLog(operationLogDto);
 
           }catch (Exception e){
               log.error("操作日志记录时出错",e);

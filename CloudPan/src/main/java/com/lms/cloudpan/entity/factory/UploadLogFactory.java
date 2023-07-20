@@ -19,8 +19,8 @@ public class UploadLogFactory {
         @Mapping(target = "id",ignore = true),
     }
         )
-        UploadLog toUploadLog(UploadLogVo uploadLogVo);
-        UploadLogDto toUploadLogDto(UploadLog uploadLog);
-       List<UploadLogDto> toListUploadLogDto(List<UploadLog> courseruploadlog);
+        UploadLog toUploadLog(UploadLogDto uploadLogDto);
+        UploadLogVo toUploadLogVo(UploadLog uploadLog);
+       List<UploadLogVo> toListUploadLogVo(List<UploadLog> courseruploadlog);
     }
 }

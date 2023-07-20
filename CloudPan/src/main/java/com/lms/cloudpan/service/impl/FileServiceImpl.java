@@ -1,11 +1,9 @@
 package com.lms.cloudpan.service.impl;
 
 
-import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.lms.cloudpan.client.OssClient;
 import com.lms.cloudpan.config.OssProperties;
 import com.lms.cloudpan.constants.FileConstants;
 import com.lms.cloudpan.constants.ShareConstants;
@@ -14,7 +12,6 @@ import com.lms.cloudpan.entity.dao.Folder;
 import com.lms.cloudpan.entity.dao.UploadLog;
 import com.lms.cloudpan.entity.dao.User;
 import com.lms.cloudpan.entity.dto.FileDto;
-import com.lms.cloudpan.entity.vo.DownloadFileVo;
 import com.lms.cloudpan.entity.vo.FileVo;
 import com.lms.cloudpan.exception.BusinessException;
 import com.lms.cloudpan.mapper.FileMapper;
@@ -34,9 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.xmlunit.builder.Input;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -81,7 +76,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
      * @return
      */
     @Override
-    public List<FileDto> getUserFileByPath(String path, Integer uid) {
+    public List<FileVo> getUserFileByPath(String path, Integer uid) {
         //先根据path 和uid查找folder_id
         if (!path.startsWith("/")) {
             path = "/" + path;
@@ -98,11 +93,11 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
                 .eq("user_id", uid).eq("delete_flag",0));
 
         //mapstruct映射转换
-        List<FileDto> result = new ArrayList<>();
+        List<FileVo> result = new ArrayList<>();
         files.forEach(file -> {
-            FileDto fileDto = new FileDto();
-            BeanUtils.copyProperties(file, fileDto);
-            result.add(fileDto);
+            FileVo fileVo = new FileVo();
+            BeanUtils.copyProperties(file, fileVo);
+            result.add(fileVo);
         });
         return result;
     }
@@ -115,18 +110,18 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
      * 1.根据上传问文件名生成唯一的路径，记录文件日志，然后上传文件
      * 2.然后记录文件信息，更新用户配额信息
      * 3.如果过程中发生异常则回滚，并且根据文件日志删除文件删除文件日志
-     * @param fileVo 包含multipartfile 和文件上传路径
+     * @param fileDto 包含multipartfile 和文件上传路径
      * @param uid
      * @return
      */
     @Override
-    public String insertFile(FileVo fileVo, Integer uid,String fingerPrint) {
+    public String insertFile(FileDto fileDto, Integer uid, String fingerPrint) {
         User user = userMapper.selectById(uid);
         //先校验文件的路径是否存在
-        Folder folder = validPath(fileVo.getFolderPath(), uid);
+        Folder folder = validPath(fileDto.getFolderPath(), uid);
 
         //
-        MultipartFile file = fileVo.getFile();
+        MultipartFile file = fileDto.getFile();
 
         validFile(file, user);
 
@@ -138,7 +133,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
         String taskId = UUID.randomUUID().toString();
 
         //设置上传状态，
-        FileVo.changeUploadState(redisCache,taskId, FileConstants.FILE_UPLOAD_RUNNING);
+        fileDto.changeUploadState(redisCache,taskId, FileConstants.FILE_UPLOAD_RUNNING);
 
         //开启异步任务
         CompletableFuture.runAsync(()-> {
@@ -175,10 +170,10 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
             //获取文件后缀
             String fileSuffix = cn.hutool.core.io.FileUtil.getSuffix(file.getOriginalFilename());
             //保存文件信息
-            this.save(File.builder().fileName(fileName).fileUrl(md5FileUrl).size(file.getSize())
+            this.save(File.builder().fileName(fileName).fingerPrint(fingerPrint).fileUrl(md5FileUrl).size(file.getSize())
                     .fileType(fileSuffix).folderId(folder.getFolderId()).userId(uid).build());
             //设置异步任务执行成功
-            FileVo.changeUploadState(redisCache,taskId,FileConstants.FILE_UPLOAD_SUCCESS);
+            FileDto.changeUploadState(redisCache,taskId,FileConstants.FILE_UPLOAD_SUCCESS);
             return;
 
         }
@@ -208,6 +203,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
             saveFile.setSize(file.getSize());
             saveFile.setFolderId(folder.getFolderId());
             saveFile.setUserId(uid);
+            saveFile.setFingerPrint(fingerPrint);
 
             //获取文件类型
             String type =cn.hutool.core.io.FileUtil.getSuffix(file.getOriginalFilename());
@@ -224,7 +220,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
             folderMapper.updateById(Folder.builder()
                     .folderId(folder.getFolderId()).size(folder.getSize() + file.getSize()).build());
             //设置异步任务执行成功
-            FileVo.changeUploadState(redisCache,taskId,FileConstants.FILE_UPLOAD_SUCCESS);
+            FileDto.changeUploadState(redisCache,taskId,FileConstants.FILE_UPLOAD_SUCCESS);
 
             //设置md5缓存
             FileSafeUploadUtil.setMd5String(fingerPrint,fileUrl);
@@ -251,15 +247,15 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
     }
 
     @Override
-    public List<FileDto> searchFile(String fileName, Integer uid) {
+    public List<FileVo> searchFile(String fileName, Integer uid) {
 
         List<File> files = fileMapper
                 .selectList(new QueryWrapper<File>().eq("user_id", uid).like("file_name", fileName));
-        List<FileDto> result = new ArrayList<>();
+        List<FileVo> result = new ArrayList<>();
         files.forEach(file -> {
-            FileDto fileDto = new FileDto();
-            BeanUtils.copyProperties(file, fileDto);
-            result.add(fileDto);
+            FileVo fileVo = new FileVo();
+            BeanUtils.copyProperties(file, fileVo);
+            result.add(fileVo);
         });
         return result;
     }
@@ -341,7 +337,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements IF
 
     @Override
     public Boolean checkUpload(String taskId) {
-        return FileVo.getUploadState(redisCache,taskId);
+        return FileDto.getUploadState(redisCache,taskId);
     }
 
 

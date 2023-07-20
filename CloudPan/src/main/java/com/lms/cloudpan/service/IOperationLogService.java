@@ -11,8 +11,8 @@ import com.lms.page.CustomPage;
 
 import java.util.List;
 public interface IOperationLogService extends IService<OperationLog> {
-    Boolean saveOperationLog(OperationLogVo operationlogVo);
-    OperationLogDto getOperationLogById(Integer id);
-    List<OperationLogDto> listOperationLog(CustomPage customPage);
+    Boolean saveOperationLog(OperationLogDto operationLogDto);
+    OperationLogVo getOperationLogById(Integer id);
+    List<OperationLogVo> listOperationLog(CustomPage customPage);
     Boolean delOperationLogById(Integer id);
 }

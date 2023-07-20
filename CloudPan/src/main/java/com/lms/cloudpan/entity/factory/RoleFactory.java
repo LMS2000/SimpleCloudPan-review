@@ -3,6 +3,7 @@ package com.lms.cloudpan.entity.factory;
 
 
 import com.lms.cloudpan.entity.dao.Role;
+
 import com.lms.cloudpan.entity.dto.RoleDto;
 import com.lms.cloudpan.entity.vo.RoleVo;
 import org.mapstruct.Mapper;
@@ -19,8 +20,8 @@ public class RoleFactory {
         @Mapping(target = "rid",ignore = true),
     }
         )
-        Role toRole(RoleVo roleVo);
-        RoleDto toRoleDto(Role role);
-        List<RoleDto> toListRoleDto(List<Role> role);
+        Role toRole(RoleDto roleDto);
+        RoleVo toRoleVo(Role role);
+        List<RoleVo> toListRoleVo(List<Role> role);
     }
 }
