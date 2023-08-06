@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.lms.cloudpan.config.OssProperties;
-import com.lms.cloudpan.utis.FileUtil;
+import com.lms.cloudpan.utils.FileUtil;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

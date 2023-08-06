@@ -24,4 +24,11 @@ public interface UserConstants {
       //用户初始密码
       String  INITPASSWORD="12345678";
 
+       String CHECK_CODE_KEY = "check_code_key";
+       String CHECK_CODE_KEY_EMAIL = "check_code_key_email";
+
+       // 邮箱验证码前缀
+
+      String EMAIIL_HEADER="check_email_code:";
+
 }

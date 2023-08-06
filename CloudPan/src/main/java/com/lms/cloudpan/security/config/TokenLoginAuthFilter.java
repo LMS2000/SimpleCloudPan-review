@@ -3,7 +3,7 @@ package com.lms.cloudpan.security.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infrastructure.jwt.Jwt;
 import com.infrastructure.jwt.LoginUser;
-import com.lms.cloudpan.utis.ResponseUtil;
+import com.lms.cloudpan.utils.ResponseUtil;
 import com.lms.contants.HttpCode;
 import com.lms.result.ResultData;
 import lombok.AllArgsConstructor;
@@ -83,7 +83,7 @@ public abstract class TokenLoginAuthFilter extends GenericFilterBean {
     protected abstract Authentication getAuthentication(HttpServletRequest request, HttpServletResponse httpServletResponse);
 
     private void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, Exception ex) throws IOException {
-        ResponseUtil.renderString(response, HttpCode.NOT_LOGIN_ERROR,false);
+        ResponseUtil.renderString(response, HttpCode.NOT_LOGIN_ERROR, ex.getMessage(),false);
     }
 
     /**

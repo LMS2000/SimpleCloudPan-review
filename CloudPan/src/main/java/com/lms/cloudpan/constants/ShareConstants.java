@@ -35,11 +35,10 @@ public interface ShareConstants {
 
 
 
-    String SHARED_FILEIDS= "shared_fileIds:";
-    String SHARED_FOLDERIDS="shared_folderIds:";
+    String SHARED_FILEIDS= "share_file_id:";
 
 
-
+    String SESSION_SHARE_KEY = "session_share_key_";
 
 
 

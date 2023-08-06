@@ -31,7 +31,8 @@ public abstract class AbstractTokenAuthenticationFilter extends OncePerRequestFi
     /**
      * 无需token校验的请求集合
      */
-    protected final Set<String> ignore_request_patterns =Set.of("/css/**", "/fonts/**", "/images/**", "/js/**", "/webjars/**", "/doc.html#/**", "/swagger-resources", "/v3/**", "/doc.html", "/swagger-ui.html","/authentication/**","/user/register","/static/**");
+    protected final Set<String> ignore_request_patterns =Set.of("/css/**", "/fonts/**", "/images/**", "/js/**", "/webjars/**", "/doc.html#/**", "/swagger-resources", "/v3/**", "/doc.html", "/swagger-ui.html","/authentication/**","/user/register","/static/**","/user/checkCode"
+            ,"/user/sendEmailCode","/file/download/*","/webShare/**");
     /**
      * ant分隔路径匹配器
      */

@@ -8,7 +8,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.lms.cloudpan.client.OssClient;
+import com.lms.cloudpan.config.AppConfig;
 import com.lms.cloudpan.config.OssProperties;
+import com.lms.cloudpan.constants.CommonConstants;
 import com.lms.cloudpan.constants.QuotaConstants;
 import com.lms.cloudpan.constants.UserConstants;
 import com.lms.cloudpan.entity.dao.Folder;
@@ -20,32 +22,30 @@ import com.lms.cloudpan.entity.dto.*;
 import com.lms.cloudpan.entity.vo.*;
 import com.lms.cloudpan.exception.BusinessException;
 import com.lms.cloudpan.mapper.UserMapper;
-import com.lms.cloudpan.service.IFolderService;
 import com.lms.cloudpan.service.IRoleService;
 import com.lms.cloudpan.service.IUserRoleService;
 import com.lms.cloudpan.service.IUserService;
-import com.lms.cloudpan.utis.MybatisUtils;
-import com.lms.cloudpan.utis.SecurityUtils;
+import com.lms.cloudpan.utils.MybatisUtils;
+import com.lms.cloudpan.utils.SecurityUtils;
+import com.lms.cloudpan.utils.StringTools;
 import com.lms.contants.HttpCode;
 import com.lms.page.CustomPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.BeanUtils;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.beans.BeanInfo;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.lms.cloudpan.constants.FileConstants.STATIC_REQUEST_PREFIX;
@@ -67,16 +67,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Resource
     private IRoleService roleService;
 
-    @Resource
-    private IFolderService folderService;
+
     private final PasswordEncoder passwordEncoder;
 
     @Resource
     private OssProperties ossProperties;
 
-
+    @Resource
+    private JavaMailSender javaMailSender;
     @Resource
     private OssClient ossClient;
+
+    @Resource
+    private AppConfig appConfig;
 
     @Override
     public Boolean saveUser(UserDto userDto) {
@@ -243,10 +246,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         Boolean isRegisterRole = registerUser(username, UserConstants.USER);
         //给用户分配空间
         User userByAccount = getUserByAccount(username);
-        boolean isCreateRoot = folderService.save(Folder.builder().userId(userByAccount.getUserId())
-                .folderName("/root").build());
+//        boolean isCreateRoot = folderService.save(Folder.builder().userId(userByAccount.getUserId())
+//                .folderName("/root").build());
 
-        return isCreate && isRegisterRole && isCreateRoot;
+        return isCreate && isRegisterRole;
     }
 
     @Override
@@ -268,7 +271,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String filePath;
         try {
             String randomPath =
-                    com.lms.cloudpan.utis.FileUtil.generatorFileName(file.getOriginalFilename() == null ? file.getName() : file.getOriginalFilename());
+                    com.lms.cloudpan.utils.FileUtil.generatorFileName(file.getOriginalFilename() == null ? file.getName() : file.getOriginalFilename());
             filePath = "avatar/" + randomPath;
             ossClient.putObject(bucketName, filePath, file.getInputStream());
 
@@ -276,7 +279,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BusinessException(HttpCode.OPERATION_ERROR, "上传头像失败");
         }
 
-        String fileUrl = com.lms.cloudpan.utis.FileUtil.getFileUrl(ossProperties.getEndpoint(), STATIC_REQUEST_PREFIX, bucketName, filePath);
+        String fileUrl = com.lms.cloudpan.utils.FileUtil.getFileUrl(ossProperties.getEndpoint(), STATIC_REQUEST_PREFIX, bucketName, filePath);
         this.updateById(User.builder().userId(uid).avatar(fileUrl).build());
 
         return fileUrl;
@@ -385,6 +388,42 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                     .eq("uid", userId).in("rid", deleteList));
         }
         return true;
+    }
+
+    @Override
+    public String sendEmail(String email, Integer type) {
+        //如果是注册，校验邮箱是否已存在
+        if (Objects.equals(type, CommonConstants.ZERO)) {
+           BusinessException.throwIf(MybatisUtils.existCheck(this,Map.of("email",email)));
+        }
+        //随机的邮箱验证码
+        String code = StringTools.getRandomNumber(CommonConstants.LENGTH_5);
+        sendEmailCode(email, code);
+        return code;
+    }
+    private void sendEmailCode(String toEmail, String code) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            //邮件发件人
+            helper.setFrom(appConfig.getSendUserName());
+            //邮件收件人 1或多个
+            helper.setTo(toEmail);
+
+            SysSettingsDto sysSettingsDto = new SysSettingsDto();
+
+            //邮件主题
+            helper.setSubject(sysSettingsDto.getRegisterEmailTitle());
+            //邮件内容
+            helper.setText(String.format(sysSettingsDto.getRegisterEmailContent(), code));
+            //邮件发送时间
+            helper.setSentDate(new Date());
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            log.error("邮件发送失败", e);
+            throw new BusinessException(HttpCode.OPERATION_ERROR,"邮件发送失败");
+        }
     }
 
 

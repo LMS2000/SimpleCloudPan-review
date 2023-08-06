@@ -25,11 +25,26 @@
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
+      <el-form-item prop="code">
+       <div class="check-code-panel">
+         <el-input
+           size="large"
+           placeholder="请输入验证码"
+           v-model.trim="loginForm.code"
+         >
+         </el-input>
+         <img
+           :src="checkCodeUrl"
+           class="check-code"
+           @click="changeCheckCode(0)"
+         />
+       </div>
 
+      </el-form-item>
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;"
         @click.native.prevent="handleLogin">Login</el-button>
 
-     <!-- <div class="tips">
+      <!-- <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
         <span> password: any</span>
       </div> -->
@@ -55,14 +70,21 @@
     data() {
       const validateUsername = (rule, value, callback) => {
         if (!validUsername(value)) {
-          callback(new Error('Please enter the correct user name'))
+          callback(new Error('请输入账号'))
         } else {
           callback()
         }
       }
       const validatePassword = (rule, value, callback) => {
         if (value.length < 6) {
-          callback(new Error('The password can not be less than 6 digits'))
+          callback(new Error('请输入不小于6位的密码'))
+        } else {
+          callback()
+        }
+      }
+      const validCode = (rule, value, callback) => {
+        if (value.length < 5) {
+          callback(new Error('请输入校验码'))
         } else {
           callback()
         }
@@ -70,7 +92,8 @@
       return {
         loginForm: {
           username: 'root',
-          password: '12345678'
+          password: '12345678',
+          code: ""
         },
         loginRules: {
           username: [{
@@ -82,11 +105,17 @@
             required: true,
             trigger: 'blur',
             validator: validatePassword
+          }],
+          code: [{
+            required: true,
+            trigger: 'blur',
+            validator: validCode
           }]
         },
         loading: false,
         passwordType: 'password',
-        redirect: undefined
+        redirect: undefined,
+        checkCodeUrl: 'http://localhost:9998/pan/user/checkCode'
       }
     },
     watch: {
@@ -108,14 +137,24 @@
           this.$refs.password.focus()
         })
       },
+      changeCheckCode(type) {
+        this.checkCodeUrl = this.checkCodeUrl + "?type=" + type;
+        // if (type == 0) {
+        //   checkCodeUrl.value =
+        //     api.checkCode + "?type=" + type + "&time=" + new Date().getTime();
+        // } else {
+        //   checkCodeUrl4SendMailCode.value =
+        //     api.checkCode + "?type=" + type + "&time=" + new Date().getTime();
+        // }
+      },
       handleLogin() {
         this.$refs.loginForm.validate(valid => {
 
           if (valid) {
             this.loading = true
 
-
-            login(this.loginForm.username, this.loginForm.password).then(res => {
+             
+            login(this.loginForm).then(res => {
               if (res.code == 20000) {
                 localStorage.setItem('token', res.data)
                 this.loading = false
@@ -280,6 +319,14 @@
       color: $dark_gray;
       cursor: pointer;
       user-select: none;
+    }
+  }
+  .check-code-panel {
+    width: 100%;
+    display: flex;
+    .check-code {
+      margin-left: 5px;
+      cursor: pointer;
     }
   }
 </style>

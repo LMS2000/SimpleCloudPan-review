@@ -11,7 +11,7 @@ import com.lms.cloudpan.mapper.RoleAuthorityMapper;
 import com.lms.cloudpan.service.IAuthorityService;
 import com.lms.cloudpan.service.IRoleAuthorityService;
 import com.lms.cloudpan.service.IRoleService;
-import com.lms.cloudpan.utis.MybatisUtils;
+import com.lms.cloudpan.utils.MybatisUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

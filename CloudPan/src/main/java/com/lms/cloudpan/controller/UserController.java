@@ -4,20 +4,17 @@ package com.lms.cloudpan.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.infrastructure.jwt.Jwt;
 import com.infrastructure.jwt.JwtUser;
-import com.lms.cloudpan.entity.dao.User;
+import com.lms.cloudpan.constants.UserConstants;
 import com.lms.cloudpan.entity.dto.*;
-import com.lms.cloudpan.entity.vo.UpdateUserVo;
 import com.lms.cloudpan.entity.vo.UserVo;
 import com.lms.cloudpan.exception.BusinessException;
 import com.lms.cloudpan.service.IUserService;
-import com.lms.cloudpan.utis.SecurityUtils;
+import com.lms.cloudpan.utils.CreateImageCode;
+import com.lms.cloudpan.utils.SecurityUtils;
 import com.lms.contants.HttpCode;
 import com.lms.result.EnableResponseAdvice;
-import com.lms.result.ResultData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
-import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -25,10 +22,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Positive;
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static com.lms.cloudpan.constants.UserConstants.ENABLE;
 
@@ -53,45 +52,66 @@ public class UserController {
      */
     @ApiOperation("注册")
     @PostMapping("/register")
-    public Boolean registerUser(@RequestBody UserDto userDto) {
+    public Boolean registerUser(@RequestBody UserDto userDto,HttpSession session) {
+        try{
+            String emailCode = (String)session.getAttribute(UserConstants.EMAIIL_HEADER + 0);
+            if(!emailCode.equals(userDto.getEmailCode())){
+                throw new BusinessException(HttpCode.PARAMS_ERROR,"邮件验证不正确");
+            }
+        }finally {
+            session.removeAttribute(UserConstants.EMAIIL_HEADER + 0);
+        }
         return userService.registerCommonUser(userDto.getUsername(), userDto.getPassword());
     }
 
+    /**
+     * 验证码
+     *  0 为注册    1 为邮箱验证
+     * @param response
+     * @param request
+     * @param type
+     * @throws IOException
+     */
+    @GetMapping(value = "/checkCode")
+    @ApiOperation("图片校验码")
+    public void checkCode(HttpServletResponse response, HttpServletRequest request, Integer type) throws
+            IOException {
+        CreateImageCode vCode = new CreateImageCode(130, 38, 5, 10);
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+        response.setContentType("image/jpeg");
+        String code = vCode.getCode();
+        HttpSession session = request.getSession();
+        if (type == null || type == 0) {
+           session.setAttribute(UserConstants.CHECK_CODE_KEY,code);
+        } else {
+            session.setAttribute(UserConstants.CHECK_CODE_KEY_EMAIL,code);
+        }
+        vCode.write(response.getOutputStream());
+    }
 
-//    /**
-//     * 登录
-//     * @param userVo
-//     * @param request
-//     * @return
-//     */
-//    @PostMapping("/login")
-//    public UserDto userLogin(@RequestBody UserVo userVo, HttpServletRequest request){
-//        if (userVo == null) {
-//            throw new BusinessException(HttpCode.PARAMS_ERROR);
-//        }
-//        String username = userVo.getUsername();
-//        String userPassword = userVo.getPassword();
-//        if (StringUtils.isAnyBlank(username, userPassword)) {
-//            throw new BusinessException(HttpCode.PARAMS_ERROR);
-//        }
-//        User user = userService.userLogin(username, userPassword, request);
-//        UserDto userDto=new UserDto();
-//        BeanUtils.copyProperties(user,userDto);
-//        return userDto;
-//    }
-
-//    /**
-//     * 注销
-//     * @param request
-//     * @return
-//     */
-//   @PostMapping("/logout")
-//   public Boolean logout(HttpServletRequest request){
-//        if (request == null) {
-//            throw new BusinessException(HttpCode.PARAMS_ERROR);
-//        }
-//        return userService.userLogout(request);
-//    }
+    /**
+     * type 0 为注册 1 为找回密码
+     * @param session
+     * @return
+     */
+    @PostMapping("/sendEmailCode")
+    public Boolean sendEmailCode(HttpSession session,@Validated @RequestBody SendEmailDto sendEmailDto) {
+        String code = sendEmailDto.getCode();
+        String email = sendEmailDto.getEmail();
+        Integer type = sendEmailDto.getType();
+        try {
+            if (!code.equalsIgnoreCase((String) session.getAttribute(UserConstants.CHECK_CODE_KEY_EMAIL))) {
+                throw new BusinessException(HttpCode.PARAMS_ERROR,"图片验证码不正确");
+            }
+            String emailCode = userService.sendEmail(email, type);
+            session.setAttribute(UserConstants.EMAIIL_HEADER+type,emailCode);
+            return true;
+        } finally {
+            session.removeAttribute(UserConstants.CHECK_CODE_KEY_EMAIL);
+        }
+    }
 
 
     /**

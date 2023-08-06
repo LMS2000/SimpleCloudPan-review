@@ -1,4 +1,4 @@
-package com.lms.cloudpan.utis;
+package com.lms.cloudpan.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lms.contants.HttpCode;
@@ -38,7 +38,28 @@ public class ResponseUtil {
             e.printStackTrace();
         }
     }
+    public static void renderString(HttpServletResponse response, HttpCode httpCode,String msg,boolean flag)
+    {
+        try
+        {
+            response.setStatus(200);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            ResultData result=null;
+            if(flag){
+                result=ResultData.success();
 
+            }else{
+                result=ResultData.error(httpCode,msg,null);
+            }
+            OBJECT_MAPPER.writeValue(response.getWriter(),result);
+//            response.getWriter().print(result);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * flag为true表示正确返回，flag为false表示错误返回

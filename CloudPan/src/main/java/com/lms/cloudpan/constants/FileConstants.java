@@ -26,4 +26,19 @@ public interface FileConstants {
     String FINGER_PRINT="finger_print:";
 
 
+    //文件的三个状态，0为在使用，1为删除，2为回收站
+    Integer USING =0;
+    Integer DELETED=1;
+    Integer RECYCLE=2;
+
+
+    Integer FILE_TYPE=0;
+    Integer FOLDER_TYPE=1;
+
+    String FILE_FOLDER_PATH="/file/";
+    String FILE_FOLDER_TEMP = "/temp/";
+
+    String DOWNLOAD_URL_HEADER="download:";
+    String REDIS_KEY_USER_FILE_TEMP_SIZE = "easypan:user:file:temp:";
+
 }

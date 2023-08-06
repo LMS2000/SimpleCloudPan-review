@@ -20,8 +20,20 @@ spring:
     username: root
     password: 123456
   redis:
-    host: localhost
+    host:
     port: 6379
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: xxxxx
+    password: xxxx
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+        debug: true
 #开启swagger配置
 swagger:
   open: true

@@ -1,25 +1,20 @@
 package com.lms.cloudpan.service.impl;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.lms.cloudpan.entity.dao.Role;
 import com.lms.cloudpan.entity.dao.RoleAuthority;
-import com.lms.cloudpan.entity.dao.User;
 import com.lms.cloudpan.entity.dao.UserRole;
 import com.lms.cloudpan.entity.dto.*;
-import com.lms.cloudpan.entity.vo.AddUserVo;
 import com.lms.cloudpan.entity.vo.RoleVo;
-import com.lms.cloudpan.entity.vo.UserVo;
 import com.lms.cloudpan.exception.BusinessException;
 import com.lms.cloudpan.mapper.RoleMapper;
 import com.lms.cloudpan.service.IRoleAuthorityService;
 import com.lms.cloudpan.service.IRoleService;
 import com.lms.cloudpan.service.IUserRoleService;
-import com.lms.cloudpan.service.IUserService;
-import com.lms.cloudpan.utis.MybatisUtils;
+import com.lms.cloudpan.utils.MybatisUtils;
 import com.lms.contants.HttpCode;
 import com.lms.page.CustomPage;
 import org.apache.commons.lang3.ObjectUtils;
@@ -29,17 +24,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.beans.BeanInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.lms.cloudpan.constants.QuotaConstants.USER_QUOTA;
 import static com.lms.cloudpan.constants.UserConstants.*;
 import static com.lms.cloudpan.entity.factory.RoleFactory.ROLE_CONVERTER;
-import static com.lms.cloudpan.entity.factory.UserFactory.USER_CONVERTER;
 
 
 @Service

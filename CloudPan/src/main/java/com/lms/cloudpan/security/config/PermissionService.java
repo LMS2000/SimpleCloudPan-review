@@ -12,7 +12,7 @@ import com.lms.cloudpan.entity.dao.User;
 import com.lms.cloudpan.entity.dao.UserRole;
 import com.lms.cloudpan.service.IRoleService;
 import com.lms.cloudpan.service.IUserRoleService;
-import com.lms.cloudpan.utis.SecurityUtils;
+import com.lms.cloudpan.utils.SecurityUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;

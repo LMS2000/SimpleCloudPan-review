@@ -57,4 +57,7 @@ public interface IUserService extends IService<User> {
 
 
     Boolean updateUser(UpdateUserDto userDto);
+
+
+    String sendEmail(String email ,Integer type);
 }

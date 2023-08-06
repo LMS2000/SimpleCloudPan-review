@@ -1,12 +1,14 @@
-package com.lms.cloudpan.utis;
+package com.lms.cloudpan.utils;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lms.cloudpan.entity.dao.Authority;
+import com.lms.cloudpan.entity.dao.File;
 import com.lms.cloudpan.entity.dao.Role;
 import com.lms.cloudpan.entity.dao.User;
 import com.lms.cloudpan.service.IAuthorityService;
+import com.lms.cloudpan.service.IFileService;
 import com.lms.cloudpan.service.IRoleService;
 import com.lms.cloudpan.service.IUserService;
 
@@ -46,5 +48,12 @@ public class MybatisUtils {
         IUserService userService = SpringUtil.getBean(IUserService.class);
         long uidCount = userService.count(new QueryWrapper<User>().in("user_id", uids).eq("delete_flag",NOT_DELETED));
         return uidCount==uids.size();
+    }
+
+    public static boolean checkFids(List<Integer> fids){
+        if(fids==null||fids.size()<1)return true;
+        IFileService fileService = SpringUtil.getBean(IFileService.class);
+        long fidCount = fileService.count(new QueryWrapper<File>().in("user_id", fids).eq("delete_flag", NOT_DELETED));
+        return fidCount==fids.size();
     }
 }

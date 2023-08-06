@@ -11,10 +11,11 @@ export function getCurrentUser() {
 }
 
 
-export function login(username, password) {
+export function login(data) {
   return request({
-    url: `/pan/login?username=${username}&password=${password}`,
-    method: 'post'
+    url: `/pan/login`,
+    method: 'post',
+    data
   })
 }
 

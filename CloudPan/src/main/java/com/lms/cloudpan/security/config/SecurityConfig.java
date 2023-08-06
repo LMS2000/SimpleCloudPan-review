@@ -35,7 +35,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 需要放行的swagger相关请求
      */
-    private final List<String> SWAGGER_REQUEST_IGNORE = List.of("/css/**", "/fonts/**", "/images/**", "/js/**", "/webjars/**", "/doc.html#/**", "/swagger-resources", "/v3/**", "/doc.html", "/swagger-ui.html","/user/register","/static/**");
+    private final List<String> SWAGGER_REQUEST_IGNORE = List.of("/css/**", "/fonts/**", "/images/**", "/js/**", "/webjars/**", "/doc.html#/**", "/swagger-resources", "/v3/**", "/doc.html", "/swagger-ui.html","/user/register","/static/**","/user/checkCode","/user/sendEmailCode"
+    ,"/file/download/*","/webShare/**","/webShare/getSaveFolder/**");
 
     /**
      * 放行静态资源

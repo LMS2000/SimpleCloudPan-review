@@ -24,12 +24,14 @@ public class User implements Serializable {
     private Integer userId;
 
     private String username;
+
+
+    private String nickName;
     private String password;
 
     private String email;
     private  Integer enable;
 
-    @TableField("delete_flag")
     private  Integer deleteFlag;
 
     private String avatar;

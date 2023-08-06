@@ -1,6 +1,6 @@
 package com.lms.cloudpan.security.config;
 
-import com.lms.cloudpan.utis.ResponseUtil;
+import com.lms.cloudpan.utils.ResponseUtil;
 import com.lms.contants.HttpCode;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

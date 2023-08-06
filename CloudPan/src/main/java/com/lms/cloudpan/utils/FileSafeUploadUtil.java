@@ -1,4 +1,4 @@
-package com.lms.cloudpan.utis;
+package com.lms.cloudpan.utils;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.lms.cloudpan.client.OssClient;
