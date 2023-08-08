@@ -34,7 +34,7 @@
          >
          </el-input>
          <img
-           :src="checkCodeUrl"
+           :src="sendCheckCodeUrl"
            class="check-code"
            @click="changeCheckCode(0)"
          />
@@ -115,6 +115,7 @@
         loading: false,
         passwordType: 'password',
         redirect: undefined,
+        sendCheckCodeUrl:'',
         checkCodeUrl: 'http://localhost:9998/pan/user/checkCode'
       }
     },
@@ -138,7 +139,8 @@
         })
       },
       changeCheckCode(type) {
-        this.checkCodeUrl = this.checkCodeUrl + "?type=" + type;
+      this.sendCheckCodeUrl = this.checkCodeUrl + "?type=" + type+"&time=" + new Date().getTime();
+
         // if (type == 0) {
         //   checkCodeUrl.value =
         //     api.checkCode + "?type=" + type + "&time=" + new Date().getTime();
@@ -153,7 +155,7 @@
           if (valid) {
             this.loading = true
 
-             
+
             login(this.loginForm).then(res => {
               if (res.code == 20000) {
                 localStorage.setItem('token', res.data)

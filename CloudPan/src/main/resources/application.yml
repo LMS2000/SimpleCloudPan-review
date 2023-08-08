@@ -20,13 +20,13 @@ spring:
     username: root
     password: 123456
   redis:
-    host:
+    host: xxx
     port: 6379
   mail:
     host: smtp.qq.com
     port: 465
-    username: xxxxx
-    password: xxxx
+    username: xxx
+    password: xxx
     default-encoding: UTF-8
     properties:
       mail:
